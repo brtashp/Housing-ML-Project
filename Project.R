@@ -1,8 +1,11 @@
 # Stat data intelligence project - predict the final price of the home 
-# 
+
+# libraries: 
+library(ggplot2)
+
+
 
 # load data 
-
 data = read.csv('train.csv')
 str(data)
 summary(data)
@@ -14,3 +17,17 @@ summary(data)
 library(ggplot2)
 
 hist(data$SalePrice)
+
+for (column in names(numerical_data)) {
+  p <- ggplot(data, aes(x = data[[column]])) +
+    geom_histogram(binwidth = 5, fill = "blue", color = "black") +
+    labs(x = "X-axis Label", y = "Frequency", title = paste("Histogram for", column)) +
+    theme_minimal()
+  
+  # Use print() to display each plot individually
+  print(p)
+  
+  # Save the plot as an image
+  ggsave(paste(column, "_histogram.png"), plot = p, width = 6, height = 4)
+}
+
