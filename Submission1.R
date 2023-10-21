@@ -1,10 +1,5 @@
 # project submission 1
 
-# load data in 
-data = read.csv("train.csv")
-
-str(data)
-
 # load in library 
 library(randomForest)
 library(caTools)
@@ -12,41 +7,93 @@ library(rpart)
 library(rpart.plot)
 library(dplyr)
 
-# need to split data into train and test: 
+# load data in 
+dataTrain = read.csv("train.csv")
+dataTest =  read.csv("test.csv")
 
-startData = data[, c("SalePrice", "MSSubClass", "LotArea", "YearBuilt", "YearRemodAdd", 
+
+str(dataTrain)
+str(dataTest)
+
+
+
+#Clean/separate some parts of the data 
+
+startDataTrain = dataTrain[, c("SalePrice", "MSSubClass", "LotArea", "YearBuilt", "YearRemodAdd", 
                      "YrSold", "OverallQual", "OverallCond", "LotFrontage", 
                      "GarageCars", "GarageArea")]
 
-startData$MSSubClass[is.na(startData$MSSubClass)]=mean(startData$MSSubClass[!is.na(startData$MSSubClass)])
-startData$LotArea[is.na(startData$LotArea)]=mean(startData$LotArea[!is.na(startData$LotArea)])
-startData$YearBuilt[is.na(startData$YearBuilt)]=mean(startData$YearBuilt[!is.na(startData$YearBuilt)])
-startData$YearRemodAdd[is.na(startData$YearRemodAdd)]=mean(startData$YearRemodAdd[!is.na(startData$YearRemodAdd)])
-startData$YrSold[is.na(startData$YrSold)]=mean(startData$YrSold[!is.na(startData$YrSold)])
-startData$OverallQual[is.na(startData$OverallQual)]=mean(startData$OverallQual[!is.na(startData$OverallQual)])
-startData$OverallCond[is.na(startData$OverallCond)]=mean(startData$OverallCond[!is.na(startData$OverallCond)])
-startData$LotFrontage[is.na(startData$LotFrontage)]=mean(startData$LotFrontage[!is.na(startData$LotFrontage)])
-startData$GarageCars[is.na(startData$GarageCars)]=mean(startData$GarageCars[!is.na(startData$GarageCars)])
-startData$GarageArea[is.na(startData$GarageArea)]=mean(startData$GarageArea[!is.na(startData$GGarageArea)])
+startDataTest = dataTest[, c("MSSubClass", "LotArea", "YearBuilt", "YearRemodAdd", 
+                               "YrSold", "OverallQual", "OverallCond", "LotFrontage", 
+                               "GarageCars", "GarageArea")]
 
-na_count = table(is.na(startData))
-print(na_count)
-# shows zero na values in dataset
+# found that the column LotFrontage is the only column with NAs, so lets remove that 
+# column 
+# found two NAs in garagecars and garagearea columns in startDataTest dataset
+summary(startDataTrain)
+summary(startDataTest)
+startDataTrain = dataTrain[, c("SalePrice", "MSSubClass", "LotArea", "YearBuilt", "YearRemodAdd", 
+                               "YrSold", "OverallQual", "OverallCond", 
+                               "GarageCars", "GarageArea")]
 
-str(startData)
+startDataTest = dataTest[, c("MSSubClass", "LotArea", "YearBuilt", "YearRemodAdd", 
+                             "YrSold", "OverallQual", "OverallCond", 
+                             "GarageCars", "GarageArea")]
 
-set.seed(1019)
-split = sample.split(startData$SalePrice, SplitRatio = 0.75)
+boxplot(startDataTrain)
+boxplot(startDataTest)
 
-startDataTrain = subset(startData, split == TRUE)
-startDataTest = subset(startData, split == FALSE)
+# also seeing a lot of variation with lot area (mostly for startDataTest, some for 
+# startDataTrain)
+# below replaces the NAs with the median 
 
-startModel = randomForest(SalePrice~., data=startDataTest, ntree=500)
+New_startDataTest = startDataTest
+
+New_startDataTest$GarageCars = ifelse(is.na(New_startDataTest$GarageCars), 
+                      median(New_startDataTest$GarageCars,
+                             na.rm = TRUE),
+                      New_startDataTest$GarageCars)
+
+summary(New_startDataTest)
+
+New_startDataTest$GarageArea = ifelse(is.na(New_startDataTest$GarageArea), 
+                                      median(New_startDataTest$GarageArea,
+                                             na.rm = TRUE),
+                                      New_startDataTest$GarageArea)
+summary(New_startDataTest)
+
+# will most likely need to choose different variables 
+
+startModel = randomForest(SalePrice~., data=startDataTrain, ntree=500)
 
 print(startModel)
 
-predictionStart = predict(startModel, newdata = startDataTest)
+predictionStart = predict(startModel, newdata = New_startDataTest)
 
-accuracy = mean(predictionStart == startDataTest$SalePrice)
+accuracy = mean(predictionStart == New_startDataTest$SalePrice)
 
-confusion_matrix = table(startDataTest, predictionsStart)
+confusion_matrix = table(New_startDataTest, predictionStart)
+
+# Train the Random Forest model
+startModel <- randomForest(SalePrice ~ ., data = startDataTrain, ntree = 500)
+
+# Predict sale prices for the test dataset
+predictionStart <- predict(startModel, newdata = New_startDataTest)
+
+mae <- mean(abs(predictionStart - startDataTrain$SalePrice))
+
+# Calculate the Root Mean Squared Error (RMSE)
+rmse <- sqrt(mean((predictionStart - startDataTrain$SalePrice)^2))
+
+# Print the MAE and RMSE
+cat("Mean Absolute Error (MAE): ", mae, "\n")
+cat("Root Mean Squared Error (RMSE): ", rmse, "\n")
+
+# Define a threshold for acceptable error
+threshold <- 10000
+
+# Calculate accuracy as the percentage of predictions within the threshold
+accuracy <- mean(abs(predictionStart - startDataTrain$SalePrice) < threshold)
+
+# Print accuracy
+cat("Accuracy within $", threshold, ": ", accuracy * 100, "%\n")
