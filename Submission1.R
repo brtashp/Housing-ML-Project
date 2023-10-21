@@ -29,6 +29,10 @@ startData$LotFrontage[is.na(startData$LotFrontage)]=mean(startData$LotFrontage[!
 startData$GarageCars[is.na(startData$GarageCars)]=mean(startData$GarageCars[!is.na(startData$GarageCars)])
 startData$GarageArea[is.na(startData$GarageArea)]=mean(startData$GarageArea[!is.na(startData$GGarageArea)])
 
+na_count = table(is.na(startData))
+print(na_count)
+# shows zero na values in dataset
+
 str(startData)
 
 set.seed(1019)
@@ -37,7 +41,7 @@ split = sample.split(startData$SalePrice, SplitRatio = 0.75)
 startDataTrain = subset(startData, split == TRUE)
 startDataTest = subset(startData, split == FALSE)
 
-startModel = randomForest(SalePrice~., data=startDataTrain, ntree=500)
+startModel = randomForest(SalePrice~., data=startDataTest, ntree=500)
 
 print(startModel)
 
