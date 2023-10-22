@@ -24,25 +24,6 @@ startDataTrain = dataTrain[, c("SalePrice", "LotFrontage", "Street", "Alley", "L
 
 summary(startDataTrain)
 
-# various boxplots:                      
-boxplot(startDataTrain$SalePrice ~ startDataTrain$MSSubClass, xlab="Categorical Variable", ylab="Numeric Variable")
-boxplot(startDataTrain$SalePrice ~ startDataTrain$MSZoning, xlab="Categorical Variable", ylab="Numeric Variable")
-boxplot(startDataTrain$SalePrice ~ startDataTrain$Street, xlab="Categorical Variable", ylab="Numeric Variable")
-boxplot(startDataTrain$SalePrice ~ startDataTrain$Alley, xlab="Categorical Variable", ylab="Numeric Variable")
-boxplot(startDataTrain$SalePrice ~ startDataTrain$LotShape, xlab="Categorical Variable", ylab="Numeric Variable")
-boxplot(startDataTrain$SalePrice ~ startDataTrain$LandContour, xlab="Categorical Variable", ylab="Numeric Variable")
-boxplot(startDataTrain$SalePrice ~ startDataTrain$Utilities, xlab="Categorical Variable", ylab="Numeric Variable")
-
-# stat version of boxplots
-by(startDataTrain$SalePrice, startDataTrain$MSZoning, summary)
-by(startDataTrain$SalePrice, startDataTrain$Street, summary)
-by(startDataTrain$SalePrice, startDataTrain$Alley, summary)
-by(startDataTrain$SalePrice, startDataTrain$LotShape, summary)
-by(startDataTrain$SalePrice, startDataTrain$LandContour, summary)
-by(startDataTrain$SalePrice, startDataTrain$Utilities, summary)
-by(startDataTrain$SalePrice, startDataTrain$LotConfig, summary)
-
-
 # assigning values to cat variables
 # MSZoning
 leveling = c("C" = 1, "RM" = 2, "RH" = 3, "RL" = 4, "FV" = 5)
@@ -96,6 +77,16 @@ startDataTrain$LotShape = ifelse(is.na(startDataTrain$LotShape),
                                             na.rm = TRUE),
                                      startDataTrain$LotShape)
 
+startDataTrain$GarageArea = ifelse(is.na(startDataTrain$GarageArea), 
+                                      median(startDataTrain$GarageArea,
+                                             na.rm = TRUE),
+                                   startDataTrain$GarageArea)
+
+startDataTrain$LotFrontage = ifelse(is.na(startDataTrain$LotFrontage), 
+                                       median(startDataTrain$LotFrontage,
+                                              na.rm = TRUE),
+                                    startDataTrain$LotFrontage)
+
 # correlation matrix 
 correlation_matrix = cor(startDataTrain)
 print(correlation_matrix)
@@ -104,23 +95,29 @@ print(correlation_matrix)
 
 # using both datasets: ############################################################
 
-startDataTest = dataTest[, c("MSSubClass", "LotArea", "YearBuilt", "YearRemodAdd", 
-                               "YrSold", "OverallQual", "OverallCond", "LotFrontage", 
-                               "GarageCars", "GarageArea")]
+startDataTrain = dataTrain[, c("SalePrice", "MSZoning", "LotArea", "YearBuilt",  
+                             "YearRemodAdd", "OverallQual", "GarageCars", "GarageArea",
+                             "LotFrontage")]
 
-startDataTrain = dataTrain[, c("SalePrice", "MSSubClass", "LotArea", "YearBuilt", "YearRemodAdd", 
-                               "YrSold", "OverallQual", "OverallCond", 
-                               "GarageCars", "GarageArea")]
-
-summary(startDataTrain)
-summary(startDataTest)
-
-boxplot(startDataTrain)
-boxplot(startDataTest)
+startDataTest = dataTest[, c("MSZoning", "LotArea", "YearBuilt",  
+                               "YearRemodAdd", "OverallQual", "GarageCars", "GarageArea",
+                               "LotFrontage")]
 
 # below replaces the NAs with the median 
 
 New_startDataTest = startDataTest
+
+# assigning values to cat variables
+# MSZoning
+leveling = c("C" = 1, "RM" = 2, "RH" = 3, "RL" = 4, "FV" = 5)
+New_startDataTest$MSZoning = factor(New_startDataTest$MSZoning, levels = names(leveling))
+New_startDataTest$MSZoning = as.integer(New_startDataTest$MSZoning)
+
+# Correcting NAs
+New_startDataTest$MSZoning = ifelse(is.na(New_startDataTest$MSZoning), 
+                                 median(New_startDataTest$MSZoning,
+                                        na.rm = TRUE),
+                                 New_startDataTest$MSZoning)
 
 New_startDataTest$GarageCars = ifelse(is.na(New_startDataTest$GarageCars), 
                       median(New_startDataTest$GarageCars,
@@ -131,7 +128,15 @@ New_startDataTest$GarageArea = ifelse(is.na(New_startDataTest$GarageArea),
                                       median(New_startDataTest$GarageArea,
                                              na.rm = TRUE),
                                       New_startDataTest$GarageArea)
-summary(New_startDataTest)
+
+New_startDataTest$LotFrontage = ifelse(is.na(New_startDataTest$LotFrontage), 
+                                      median(New_startDataTest$LotFrontage,
+                                             na.rm = TRUE),
+                                      New_startDataTest$LotFrontage)
+
+summary(New_startDataTest) # check to make sure there are no more NA's
+summary(startDataTrain)
+
 
 # Train the Random Forest model
 startModel = randomForest(SalePrice ~ ., data = startDataTrain, ntree = 500)
