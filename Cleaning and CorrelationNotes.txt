@@ -1,0 +1,67 @@
+correlated variables:
+
+- YearRemodAdd (0.50710097)
+- OverallQual (0.79098160)
+- LotArea (0.26384335)
+- YearBuilt (0.52289733)
+- GarageCars (0.64040920)
+- GarageArea (0.62343144)
+- MSZoning (0.3022734)
+- LotFrontage (0.334770853) 
+- Street (0.0410355355) 
+- Alley (0.139867750) 
+- LotShape (0.131672840
+- LandContour (0.158437005 
+- Utilities (0.014314296
+- LotConfig (0.1228823631
+
+most correlated variables: 
+- YearRemodAdd (0.50710097)
+- OverallQual (0.79098160)
+- LotArea (0.26384335)
+- YearBuilt (0.52289733)
+- GarageCars (0.64040920)
+- GarageArea (0.62343144)
+- MSZoning (0.3022734)
+- LotFrontage (0.334770853)
+
+Other info for int values: 
+- LotFrontage: 
+	- Number of NAs: 259 
+
+
+Checking categorial variables 
+- MSSubClass:
+	
+- MSZoning: 
+	- (Highest price based on mean); FV, RL, RH, RM, C 
+	- need to order these 1-5 with 5 to the highest mean price
+	  so when we do our correlation analysis, we can see if these affects 
+	  housing prices
+
+- Street: 
+	- Grvl has lower mean (130191) than Pave (181131)
+	- amount of NAs: 
+
+- Alley: 
+	- NA value has a higher mean (183452), then Pave (168001), then (122219)
+	- Number of NAs: 91
+
+
+- LotShape: 
+	- IR1 (206102), IR2 (239833), IR3 (216037), IR4 (164755)
+	- NAs: 925 
+	- double check, should hav a reg variable, and not an IR4 var? 
+
+- LandContour
+	- HLS (231534)(4), Low (203661)(3), Lvl (180184)(2), Bnk (143104)(1) 
+	- zero NAs? 
+	- large variation in Lvl 
+
+- Utilities 
+	- AllPub (180951), NoSeWa (137500) 
+	- zero NAs?
+	- double check this one, should have 5 charater value types
+
+- LotConfig
+	- Inside (176938), FR2 (177935), Corner (181623), FR3 (208475), CulDSac (223855)
