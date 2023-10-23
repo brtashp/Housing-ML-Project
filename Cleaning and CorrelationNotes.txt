@@ -14,6 +14,9 @@ correlated variables:
 - LandContour (0.158437005 
 - Utilities (0.014314296
 - LotConfig (0.1228823631
+- LandSlope (0.051152248)
+- Neighborhood (0.46943066)
+- Condition1 (0.160270566)
 
 most correlated variables: 
 - YearRemodAdd (0.50710097)
@@ -65,3 +68,49 @@ Checking categorial variables
 
 - LotConfig
 	- Inside (176938), FR2 (177935), Corner (181623), FR3 (208475), CulDSac (223855)
+
+- LandSlope
+	- Gtl (179957), Mod (196734), Sev (204379)
+
+- Neighborhood
+	- Blmngtn (194871)
+	- Blueste (137500)
+	- BrDale (104494)
+	- BrkSide (124834) 
+	- ClearCr (212565)
+	- CollgCr (197966)
+	- Crawfor (210625)
+	- Edwards (128220)
+	- Gilbert (192855)
+	- IDOTRR (100124)
+	- MeadowV (98576)
+	- Mitchel (156270) 
+	- Names (145847)
+	- NoRidge (335295)
+	- NPkVill (142694)
+	- NridgHt (316271) 
+	- NWAmes (189050) 
+	- OldTown (128225)
+	- Sawyer (136793)
+	- SawyerW (186556)
+	- Somerst (225380)
+	- StoneBr (310499) 
+	- SWISU (142591)
+	- Timber (242247)
+	- Veenker (238773)
+	- Number of NA's: 283
+
+- Condition1: 
+	- Artery (135092), Feedr (142475), Norm (184496), PosA (225875), PosN (215184)
+	- RRAe (138400), RRAn (184397), RRNe (190750), RRNe (190750)
+	- Number of NA's: 5
+
+- Condition 2
+	- I dont think it makes up that much so im skipping this one 
+
+- BldgType 
+	- 2fmCon (128432), Duplex (133541), Twnhs (135912), TwnhsE (181959), 1Fam (185764)
+	- No NA's? 
+
+- HouseStyle:
+	- 5Unf (110150), SFoyer (135074), 1.5Fin (143117), 2.5Unf (157355), SLvl (166703), 2Story (210052), 2.5Fin (220000)
