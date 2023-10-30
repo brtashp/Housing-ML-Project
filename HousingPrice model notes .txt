@@ -1,0 +1,3 @@
+HousingPrice model notes 
+
+need to redo yearremodadd and other numeric variables since they might be off 
