@@ -21,7 +21,7 @@ startDataTrain = dataTrain[, c("SalePrice", "MSZoning", "LotArea", "YearBuilt", 
                                "LandSlope", "Neighborhood", "Condition1",  
                                "BldgType", "HouseStyle", "Street", "Alley", "LotShape",
                                "LandContour", "Utilities", "LotConfig", "OverallCond",
-                               "YearBuilt", "YearRemodAdd")]
+                               "YearRemodAdd", "RoofStyle", "RoofMatl")]
 
 summary(startDataTrain)
 
@@ -31,16 +31,13 @@ by(startDataTrain$SalePrice, startDataTrain$Condition1, summary)
 by(startDataTrain$SalePrice, startDataTrain$HouseStyle, summary)
 by(startDataTrain$SalePrice, startDataTrain$BldgType, summary)
 by(startDataTrain$SalePrice, startDataTrain$OverallCond, summary)
-by(startDataTrain$SalePrice, startDataTrain$YearBuilt, summary)
+by(startDataTrain$SalePrice, startDataTrain$YearRemodAdd, summary)
+by(startDataTrain$SalePrice, startDataTrain$RoofStyle, summary)
+by(startDataTrain$SalePrice, startDataTrain$RoofMatl, summary)
+
+boxplot(SalePrice ~ RoofStyle, data = startDataTrain)
 
 # other code for reassigning values 
-mean_prices <- tapply(startDataTrain$SalesPrice, floor(startDataTrain$Year / 10) * 10, mean)
-# Reassign the Year value based on the mean SalesPrice
-startDataTrain$Year <- sapply(startDataTrain$Year, function(year) {
-  decade <- floor(year / 10) * 10
-  new_year <- which.max(mean_prices[decade])
-  return(new_year)
-})
 
 # assigning values to cat variables
 # MSZoning
@@ -113,6 +110,11 @@ startDataTrain$HouseStyle = as.integer(startDataTrain$HouseStyle)
 custom_mapping <- c(`1` = 1, `2` = 4, `3` = 2, `4` = 3, `5` = 8, `6` = 5, `7` = 7, `8` = 6, `9` = 9)
 startDataTrain$OverallCond <- custom_mapping[as.character(startDataTrain$OverallCond)]
 
+# RoofStyle
+leveling = c("Gambrel" = 1, "Gable" = 2, "Mansard" = 3, "Flat" = 4, "Hip" = 5, "Shed" = 6)
+startDataTrain$RoofStyle = factor(startDataTrain$RoofStyle, levels = names(leveling))
+startDataTrain$RoofStyle = as.integer(startDataTrain$RoofStyle)
+
 # Correcting NAs
 startDataTrain$MSZoning = ifelse(is.na(startDataTrain$MSZoning), 
                                       median(startDataTrain$MSZoning,
@@ -164,6 +166,16 @@ startDataTrain$OverallCond = ifelse(is.na(startDataTrain$OverallCond),
                                          na.rm = TRUE),
                                   startDataTrain$OverallCond)
 
+startDataTrain$YearRemodAdd = ifelse(is.na(startDataTrain$YearRemodAdd), 
+                                    median(startDataTrain$YearRemodAdd,
+                                           na.rm = TRUE),
+                                    startDataTrain$YearRemodAdd)
+
+startDataTrain$RoofStyle = ifelse(is.na(startDataTrain$RoofStyle), 
+                                     median(startDataTrain$RoofStyle,
+                                            na.rm = TRUE),
+                                     startDataTrain$RoofStyle)
+
 # correlation matrix 
 correlation_matrix = cor(startDataTrain)
 print(correlation_matrix)
@@ -171,10 +183,11 @@ print(correlation_matrix)
 # using both datasets: ############################################################
 
 startDataTest = dataTest[, c("MSZoning", "LotArea", "YearBuilt", "LotFrontage", 
-                               "YearRemodAdd", "OverallQual", "GarageCars", "GarageArea",
-                               "LandSlope", "Neighborhood", "Condition1",  
-                               "BldgType", "HouseStyle", "Street", "Alley", "LotShape",
-                               "LandContour", "Utilities", "LotConfig")]
+                             "YearRemodAdd", "OverallQual", "GarageCars", "GarageArea",
+                             "LandSlope", "Neighborhood", "Condition1",  
+                             "BldgType", "HouseStyle", "Street", "Alley", "LotShape",
+                             "LandContour", "Utilities", "LotConfig", "OverallCond",
+                             "YearRemodAdd", "RoofStyle", "RoofMatl")]
 
 # below replaces the NAs with the median 
 
@@ -251,6 +264,11 @@ New_startDataTest$LotConfig = as.integer(New_startDataTest$LotConfig)
 custom_mapping <- c(`1` = 1, `2` = 4, `3` = 2, `4` = 3, `5` = 8, `6` = 5, `7` = 7, `8` = 6, `9` = 9)
 New_startDataTest$OverallCond <- custom_mapping[as.character(New_startDataTest$OverallCond)]
 
+# RoofStyle
+leveling = c("Gambrel" = 1, "Gable" = 2, "Mansard" = 3, "Flat" = 4, "Hip" = 5, "Shed" = 6)
+New_startDataTest$RoofStyle = factor(New_startDataTest$RoofStyle, levels = names(leveling))
+New_startDataTest$RoofStyle = as.integer(New_startDataTest$RoofStyle)
+
 # Correcting NAs
 New_startDataTest$MSZoning = ifelse(is.na(New_startDataTest$MSZoning), 
                                  median(New_startDataTest$MSZoning,
@@ -311,6 +329,16 @@ New_startDataTest$OverallCond = ifelse(is.na(New_startDataTest$OverallCond),
                                    median(New_startDataTest$OverallCond,
                                           na.rm = TRUE),
                                    New_startDataTest$OverallCond)
+
+New_startDataTest$YearRemodAdd = ifelse(is.na(New_startDataTest$YearRemodAdd), 
+                                     median(New_startDataTest$YearRemodAdd,
+                                            na.rm = TRUE),
+                                     New_startDataTest$YearRemodAdd)
+
+New_startDataTest$RoofStyle = ifelse(is.na(New_startDataTest$RoofStyle), 
+                                  median(New_startDataTest$RoofStyle,
+                                         na.rm = TRUE),
+                                  New_startDataTest$RoofStyle)
 
 summary(New_startDataTest) # check to make sure there are no more NA's
 summary(startDataTrain)
