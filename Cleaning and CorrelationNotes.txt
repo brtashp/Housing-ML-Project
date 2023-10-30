@@ -17,6 +17,7 @@ correlated variables:
 - LandSlope (0.051152248)
 - Neighborhood (0.46943066)
 - Condition1 (0.160270566)
+- OverallCond (0.33036411) 
 
 most correlated variables: 
 - YearRemodAdd (0.50710097)
@@ -114,3 +115,9 @@ Checking categorial variables
 
 - HouseStyle:
 	- 5Unf (110150), SFoyer (135074), 1.5Fin (143117), 2.5Unf (157355), SLvl (166703), 2Story (210052), 2.5Fin (220000)
+
+- OverallCond 
+	- 1 (61000), 2 (141986), 3 (101929), 4 (120438), 5 (203147), 6 (153962), 7 (158146), 8 (155652), 9 (216005)  
+	- 1 (61000), 2 (101929), 3 (120438), 4 (141986), 5 (153962), 6 (155652), 7 (158146), 8 (203147), 9 (216005) 	(reassigned) 
+
+- 

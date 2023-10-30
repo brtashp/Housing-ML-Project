@@ -20,7 +20,8 @@ startDataTrain = dataTrain[, c("SalePrice", "MSZoning", "LotArea", "YearBuilt", 
                                "YearRemodAdd", "OverallQual", "GarageCars", "GarageArea",
                                "LandSlope", "Neighborhood", "Condition1",  
                                "BldgType", "HouseStyle", "Street", "Alley", "LotShape",
-                               "LandContour", "Utilities", "LotConfig")]
+                               "LandContour", "Utilities", "LotConfig", "OverallCond",
+                               "YearBuilt", "YearRemodAdd")]
 
 summary(startDataTrain)
 
@@ -29,6 +30,17 @@ by(startDataTrain$SalePrice, startDataTrain$Neighborhood, summary)
 by(startDataTrain$SalePrice, startDataTrain$Condition1, summary)
 by(startDataTrain$SalePrice, startDataTrain$HouseStyle, summary)
 by(startDataTrain$SalePrice, startDataTrain$BldgType, summary)
+by(startDataTrain$SalePrice, startDataTrain$OverallCond, summary)
+by(startDataTrain$SalePrice, startDataTrain$YearBuilt, summary)
+
+# other code for reassigning values 
+mean_prices <- tapply(startDataTrain$SalesPrice, floor(startDataTrain$Year / 10) * 10, mean)
+# Reassign the Year value based on the mean SalesPrice
+startDataTrain$Year <- sapply(startDataTrain$Year, function(year) {
+  decade <- floor(year / 10) * 10
+  new_year <- which.max(mean_prices[decade])
+  return(new_year)
+})
 
 # assigning values to cat variables
 # MSZoning
@@ -97,6 +109,10 @@ leveling = c("5Unf" = 1, "SFoyer" = 2, "1.5Fin" = 3, "2.5Unf" = 4, "SLvl" = 5, "
 startDataTrain$HouseStyle = factor(startDataTrain$HouseStyle, levels = names(leveling))
 startDataTrain$HouseStyle = as.integer(startDataTrain$HouseStyle)
 
+# OverallCond
+custom_mapping <- c(`1` = 1, `2` = 4, `3` = 2, `4` = 3, `5` = 8, `6` = 5, `7` = 7, `8` = 6, `9` = 9)
+startDataTrain$OverallCond <- custom_mapping[as.character(startDataTrain$OverallCond)]
+
 # Correcting NAs
 startDataTrain$MSZoning = ifelse(is.na(startDataTrain$MSZoning), 
                                       median(startDataTrain$MSZoning,
@@ -142,6 +158,11 @@ startDataTrain$LandSlope = ifelse(is.na(startDataTrain$LandSlope),
                                    median(startDataTrain$LandSlope,
                                           na.rm = TRUE),
                                    startDataTrain$LandSlope)
+
+startDataTrain$OverallCond = ifelse(is.na(startDataTrain$OverallCond), 
+                                  median(startDataTrain$OverallCond,
+                                         na.rm = TRUE),
+                                  startDataTrain$OverallCond)
 
 # correlation matrix 
 correlation_matrix = cor(startDataTrain)
@@ -226,6 +247,10 @@ leveling = c("Inside" = 1, "FR2" = 2, "Corner" = 3, "FR3" = 4, "CulDSac" = 5)
 New_startDataTest$LotConfig = factor(New_startDataTest$LotConfig, levels = names(leveling))
 New_startDataTest$LotConfig = as.integer(New_startDataTest$LotConfig)
 
+# OverallCond
+custom_mapping <- c(`1` = 1, `2` = 4, `3` = 2, `4` = 3, `5` = 8, `6` = 5, `7` = 7, `8` = 6, `9` = 9)
+New_startDataTest$OverallCond <- custom_mapping[as.character(New_startDataTest$OverallCond)]
+
 # Correcting NAs
 New_startDataTest$MSZoning = ifelse(is.na(New_startDataTest$MSZoning), 
                                  median(New_startDataTest$MSZoning,
@@ -281,6 +306,11 @@ New_startDataTest$BldgType = ifelse(is.na(New_startDataTest$BldgType),
                                      median(New_startDataTest$BldgType,
                                             na.rm = TRUE),
                                      New_startDataTest$BldgType)
+
+New_startDataTest$OverallCond = ifelse(is.na(New_startDataTest$OverallCond), 
+                                   median(New_startDataTest$OverallCond,
+                                          na.rm = TRUE),
+                                   New_startDataTest$OverallCond)
 
 summary(New_startDataTest) # check to make sure there are no more NA's
 summary(startDataTrain)
