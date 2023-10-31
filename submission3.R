@@ -5,7 +5,7 @@ library(randomForest)
 library(caTools)
 library(rpart)
 library(rpart.plot)
-library(dplyr)
+#library(dplyr)
 
 # load data in 
 dataTrain = read.csv("train.csv")
@@ -21,21 +21,22 @@ startDataTrain = dataTrain[, c("SalePrice", "MSZoning", "LotArea", "YearBuilt", 
                                "LandSlope", "Neighborhood", "Condition1",  
                                "BldgType", "HouseStyle", "Street", "Alley", "LotShape",
                                "LandContour", "Utilities", "LotConfig", "OverallCond",
-                               "YearRemodAdd", "RoofStyle", "RoofMatl")]
+                               "RoofStyle", "RoofMatl", "Exterior1st", "Exterior2nd", "MasVnrType")]
 
-summary(startDataTrain)
+#summary(startDataTrain)
 
-by(startDataTrain$SalePrice, startDataTrain$LandSlope, summary)
-by(startDataTrain$SalePrice, startDataTrain$Neighborhood, summary)
-by(startDataTrain$SalePrice, startDataTrain$Condition1, summary)
-by(startDataTrain$SalePrice, startDataTrain$HouseStyle, summary)
-by(startDataTrain$SalePrice, startDataTrain$BldgType, summary)
-by(startDataTrain$SalePrice, startDataTrain$OverallCond, summary)
-by(startDataTrain$SalePrice, startDataTrain$YearRemodAdd, summary)
-by(startDataTrain$SalePrice, startDataTrain$RoofStyle, summary)
-by(startDataTrain$SalePrice, startDataTrain$RoofMatl, summary)
+#by(startDataTrain$SalePrice, startDataTrain$LandSlope, summary)
+#by(startDataTrain$SalePrice, startDataTrain$Neighborhood, summary)
+#by(startDataTrain$SalePrice, startDataTrain$Condition1, summary)
+#by(startDataTrain$SalePrice, startDataTrain$HouseStyle, summary)
+#by(startDataTrain$SalePrice, startDataTrain$BldgType, summary)
+#by(startDataTrain$SalePrice, startDataTrain$OverallCond, summary)
+#by(startDataTrain$SalePrice, startDataTrain$YearRemodAdd, summary)
+#by(startDataTrain$SalePrice, startDataTrain$Exterior1st, summary)
+#by(startDataTrain$SalePrice, startDataTrain$Exterior2nd, summary)
+#by(startDataTrain$SalePrice, startDataTrain$MasVnrType, summary)
 
-boxplot(SalePrice ~ RoofStyle, data = startDataTrain)
+#boxplot(SalePrice ~ MasVnrArea, data = startDataTrain)
 
 # other code for reassigning values 
 
@@ -115,6 +116,30 @@ leveling = c("Gambrel" = 1, "Gable" = 2, "Mansard" = 3, "Flat" = 4, "Hip" = 5, "
 startDataTrain$RoofStyle = factor(startDataTrain$RoofStyle, levels = names(leveling))
 startDataTrain$RoofStyle = as.integer(startDataTrain$RoofStyle)
 
+# RoofMatl
+leveling = c("Roll" = 1, "ClyTile" = 2, "CompShg" = 3, "Metal" = 4, "Tar&Grv" = 5, "WdShake" = 6, "Membran" = 7, "WdShngl" = 8)
+startDataTrain$RoofMatl = factor(startDataTrain$RoofMatl, levels = names(leveling))
+startDataTrain$RoofMatl = as.integer(startDataTrain$RoofMatl)
+
+# Exterior1st 
+leveling = c("BrkComm" = 1, "AsphShn" = 2, "CBlock" = 3, "AsbShng" = 4, "MetalSd" = 5, 
+             "Wd Sdng" = 6, "WdShing" = 7, "Stucco" = 8, "HdBoard" = 9, "Plywood" = 10,
+             "BrkFace" = 11, "VinylSd" = 12, "CemntBd" = 13, "Stone" = 14, "ImStucc" = 15)
+startDataTrain$Exterior1st = factor(startDataTrain$Exterior1st, levels = names(leveling))
+startDataTrain$Exterior1st = as.integer(startDataTrain$Exterior1st)
+
+# Exterior2nd 
+leveling = c("CBlock" = 1, "AsbShng" = 2, "Brk Cmn" = 3, "AsphShn" = 4, "Wd Sdng" = 5, 
+             "MetalSd" = 6, "Stucco" = 7, "Stone" = 8, "HdBoard" = 9, "Plywood" = 10,
+             "BrkFace" = 11, "VinylSd" = 12, "CemntBd" = 13, "ImStucc" = 14, " Other" = 15)
+startDataTrain$Exterior2nd = factor(startDataTrain$Exterior2nd, levels = names(leveling))
+startDataTrain$Exterior2nd = as.integer(startDataTrain$Exterior2nd)
+
+# MasVnrType
+leveling = c("BrkCmn" = 1, "None" = 2, "BrkFace" = 3, "Stone" = 4)
+startDataTrain$MasVnrType = factor(startDataTrain$MasVnrType, levels = names(leveling))
+startDataTrain$MasVnrType = as.integer(startDataTrain$MasVnrType)
+
 # Correcting NAs
 startDataTrain$MSZoning = ifelse(is.na(startDataTrain$MSZoning), 
                                       median(startDataTrain$MSZoning,
@@ -176,6 +201,26 @@ startDataTrain$RoofStyle = ifelse(is.na(startDataTrain$RoofStyle),
                                             na.rm = TRUE),
                                      startDataTrain$RoofStyle)
 
+startDataTrain$RoofMatl = ifelse(is.na(startDataTrain$RoofMatl), 
+                                    median(startDataTrain$RoofMatl,
+                                           na.rm = TRUE),
+                                     startDataTrain$RoofMatl)
+
+startDataTrain$Exterior1st = ifelse(is.na(startDataTrain$Exterior1st), 
+                                       median(startDataTrain$Exterior1st,
+                                              na.rm = TRUE),
+                                    startDataTrain$Exterior1st)
+
+startDataTrain$Exterior2nd = ifelse(is.na(startDataTrain$Exterior2nd), 
+                                       median(startDataTrain$Exterior2nd,
+                                              na.rm = TRUE),
+                                    startDataTrain$Exterior2nd)
+
+startDataTrain$MasVnrType = ifelse(is.na(startDataTrain$MasVnrType), 
+                                      median(startDataTrain$MasVnrType,
+                                             na.rm = TRUE),
+                                   startDataTrain$MasVnrType)
+
 # correlation matrix 
 correlation_matrix = cor(startDataTrain)
 print(correlation_matrix)
@@ -187,7 +232,8 @@ startDataTest = dataTest[, c("MSZoning", "LotArea", "YearBuilt", "LotFrontage",
                              "LandSlope", "Neighborhood", "Condition1",  
                              "BldgType", "HouseStyle", "Street", "Alley", "LotShape",
                              "LandContour", "Utilities", "LotConfig", "OverallCond",
-                             "YearRemodAdd", "RoofStyle", "RoofMatl")]
+                             "RoofStyle", "RoofMatl", "Exterior1st", "Exterior2nd", 
+                             "MasVnrType")]
 
 # below replaces the NAs with the median 
 
@@ -269,6 +315,30 @@ leveling = c("Gambrel" = 1, "Gable" = 2, "Mansard" = 3, "Flat" = 4, "Hip" = 5, "
 New_startDataTest$RoofStyle = factor(New_startDataTest$RoofStyle, levels = names(leveling))
 New_startDataTest$RoofStyle = as.integer(New_startDataTest$RoofStyle)
 
+# RoofMatl
+leveling = c("Roll" = 1, "ClyTile" = 2, "CompShg" = 3, "Metal" = 4, "Tar&Grv" = 5, "WdShake" = 6, "Membran" = 7, "WdShngl" = 8)
+New_startDataTest$RoofMatl = factor(New_startDataTest$RoofMatl, levels = names(leveling))
+New_startDataTest$RoofMatl = as.integer(New_startDataTest$RoofMatl)
+
+# Exterior1st 
+leveling = c("BrkComm" = 1, "AsphShn" = 2, "CBlock" = 3, "AsbShng" = 4, "MetalSd" = 5, 
+             "Wd Sdng" = 6, "WdShing" = 7, "Stucco" = 8, "HdBoard" = 9, "Plywood" = 10,
+             "BrkFace" = 11, "VinylSd" = 12, "CemntBd" = 13, "Stone" = 14, "ImStucc" = 15)
+New_startDataTest$Exterior1st = factor(New_startDataTest$Exterior1st, levels = names(leveling))
+New_startDataTest$Exterior1st = as.integer(New_startDataTest$Exterior1st)
+
+# Exterior2nd 
+leveling = c("CBlock" = 1, "AsbShng" = 2, "Brk Cmn" = 3, "AsphShn" = 4, "Wd Sdng" = 5, 
+             "MetalSd" = 6, "Stucco" = 7, "Stone" = 8, "HdBoard" = 9, "Plywood" = 10,
+             "BrkFace" = 11, "VinylSd" = 12, "CemntBd" = 13, "ImStucc" = 14, " Other" = 15)
+New_startDataTest$Exterior2nd = factor(New_startDataTest$Exterior2nd, levels = names(leveling))
+New_startDataTest$Exterior2nd = as.integer(New_startDataTest$Exterior2nd)
+
+# MasVnrType
+leveling = c("BrkCmn" = 1, "None" = 2, "BrkFace" = 3, "Stone" = 4)
+New_startDataTest$MasVnrType = factor(New_startDataTest$MasVnrType, levels = names(leveling))
+New_startDataTest$MasVnrType = as.integer(New_startDataTest$MasVnrType)
+
 # Correcting NAs
 New_startDataTest$MSZoning = ifelse(is.na(New_startDataTest$MSZoning), 
                                  median(New_startDataTest$MSZoning,
@@ -339,6 +409,26 @@ New_startDataTest$RoofStyle = ifelse(is.na(New_startDataTest$RoofStyle),
                                   median(New_startDataTest$RoofStyle,
                                          na.rm = TRUE),
                                   New_startDataTest$RoofStyle)
+
+New_startDataTest$RoofMatl = ifelse(is.na(New_startDataTest$RoofMatl), 
+                                     median(New_startDataTest$RoofMatl,
+                                            na.rm = TRUE),
+                                     New_startDataTest$RoofMatl)
+
+New_startDataTest$Exterior1st = ifelse(is.na(New_startDataTest$Exterior1st), 
+                                    median(New_startDataTest$Exterior1st,
+                                           na.rm = TRUE),
+                                    New_startDataTest$Exterior1st)
+
+New_startDataTest$Exterior2nd = ifelse(is.na(New_startDataTest$Exterior2nd), 
+                                       median(New_startDataTest$Exterior2nd,
+                                              na.rm = TRUE),
+                                       New_startDataTest$Exterior2nd)
+
+New_startDataTest$MasVnrType = ifelse(is.na(New_startDataTest$MasVnrType), 
+                                       median(New_startDataTest$MasVnrType,
+                                              na.rm = TRUE),
+                                       New_startDataTest$MasVnrType)
 
 summary(New_startDataTest) # check to make sure there are no more NA's
 summary(startDataTrain)

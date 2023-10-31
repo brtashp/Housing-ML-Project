@@ -19,7 +19,8 @@ str(dataTest)
 startDataTrain = dataTrain[, c("SalePrice", "MSZoning", "LotArea", "YearBuilt", "LotFrontage", 
                                "YearRemodAdd", "OverallQual", "GarageCars", "GarageArea",
                                "LandSlope", "Neighborhood", "Condition1",  
-                               "BldgType", "HouseStyle")]
+                               "BldgType", "HouseStyle", "Street", "Alley", "LotShape",
+                               "LandContour", "Utilities", "LotConfig")]
 
 summary(startDataTrain)
 
@@ -137,6 +138,11 @@ startDataTrain$HouseStyle = ifelse(is.na(startDataTrain$HouseStyle),
                                           na.rm = TRUE),
                                    startDataTrain$HouseStyle)
 
+startDataTrain$LandSlope = ifelse(is.na(startDataTrain$LandSlope), 
+                                   median(startDataTrain$LandSlope,
+                                          na.rm = TRUE),
+                                   startDataTrain$LandSlope)
+
 # correlation matrix 
 correlation_matrix = cor(startDataTrain)
 print(correlation_matrix)
@@ -144,9 +150,10 @@ print(correlation_matrix)
 # using both datasets: ############################################################
 
 startDataTest = dataTest[, c("MSZoning", "LotArea", "YearBuilt", "LotFrontage", 
-                             "YearRemodAdd", "OverallQual", "GarageCars", "GarageArea",
-                             "LandSlope", "Neighborhood", "Condition1",  
-                             "BldgType", "HouseStyle")]
+                               "YearRemodAdd", "OverallQual", "GarageCars", "GarageArea",
+                               "LandSlope", "Neighborhood", "Condition1",  
+                               "BldgType", "HouseStyle", "Street", "Alley", "LotShape",
+                               "LandContour", "Utilities", "LotConfig")]
 
 # below replaces the NAs with the median 
 
@@ -188,6 +195,36 @@ leveling = c("5Unf" = 1, "SFoyer" = 2, "1.5Fin" = 3, "2.5Unf" = 4, "SLvl" = 5, "
 New_startDataTest$HouseStyle = factor(New_startDataTest$HouseStyle, levels = names(leveling))
 New_startDataTest$HouseStyle = as.integer(New_startDataTest$HouseStyle)
 
+# Street
+leveling = c("Grvl" = 1, "Pave" = 2)
+New_startDataTest$Street = factor(New_startDataTest$Street, levels = names(leveling))
+New_startDataTest$Street = as.integer(New_startDataTest$Street)
+
+# Alley 
+New_startDataTest$Alley <- ifelse(is.na(New_startDataTest$Alley), "unknown", New_startDataTest$Alley)
+leveling = c("Grvl" = 1, "Pave" = 2, "unknown" = 3)
+New_startDataTest$Alley = factor(New_startDataTest$Alley, levels = names(leveling))
+New_startDataTest$Alley = as.integer(New_startDataTest$Alley)
+
+# LotShape 
+leveling = c("IR4" = 1, "IR1" = 2, "IR3" = 3, "IR2" = 4)
+New_startDataTest$LotShape = factor(New_startDataTest$LotShape, levels = names(leveling))
+New_startDataTest$LotShape = as.integer(New_startDataTest$LotShape)
+
+# LandContour
+leveling = c("Bnk" = 1, "Lvl" = 2, "Low" = 3, "HLS" = 4)
+New_startDataTest$LandContour = factor(New_startDataTest$LandContour, levels = names(leveling))
+New_startDataTest$LandContour = as.integer(New_startDataTest$LandContour)
+
+# Utilities 
+leveling = c("NoSeWa" = 1, "AllPub" = 2)
+New_startDataTest$Utilities = factor(New_startDataTest$Utilities, levels = names(leveling))
+New_startDataTest$Utilities = as.integer(New_startDataTest$Utilities)
+
+# LotConfig
+leveling = c("Inside" = 1, "FR2" = 2, "Corner" = 3, "FR3" = 4, "CulDSac" = 5)
+New_startDataTest$LotConfig = factor(New_startDataTest$LotConfig, levels = names(leveling))
+New_startDataTest$LotConfig = as.integer(New_startDataTest$LotConfig)
 
 # Correcting NAs
 New_startDataTest$MSZoning = ifelse(is.na(New_startDataTest$MSZoning), 
@@ -210,20 +247,40 @@ New_startDataTest$LotFrontage = ifelse(is.na(New_startDataTest$LotFrontage),
                                              na.rm = TRUE),
                                       New_startDataTest$LotFrontage)
 
-New_startDataTest$Neighborhood = ifelse(is.na(New_startDataTest$Neighborhood), 
-                                       median(New_startDataTest$Neighborhood,
-                                              na.rm = TRUE),
-                                       New_startDataTest$Neighborhood)
-
 New_startDataTest$Condition1 = ifelse(is.na(New_startDataTest$Condition1), 
                                         median(New_startDataTest$Condition1,
                                                na.rm = TRUE),
                                         New_startDataTest$Condition1)
 
+New_startDataTest$LotShape = ifelse(is.na(New_startDataTest$LotShape), 
+                                 median(New_startDataTest$LotShape,
+                                        na.rm = TRUE),
+                                 New_startDataTest$LotShape)
+
+New_startDataTest$Neighborhood = ifelse(is.na(New_startDataTest$Neighborhood), 
+                                     median(New_startDataTest$Neighborhood,
+                                            na.rm = TRUE),
+                                     New_startDataTest$Neighborhood)
+
 New_startDataTest$HouseStyle = ifelse(is.na(New_startDataTest$HouseStyle), 
-                                      median(New_startDataTest$HouseStyle,
-                                             na.rm = TRUE),
-                                      New_startDataTest$HouseStyle)
+                                   median(New_startDataTest$HouseStyle,
+                                          na.rm = TRUE),
+                                   New_startDataTest$HouseStyle)
+
+New_startDataTest$Utilities = ifelse(is.na(New_startDataTest$Utilities), 
+                                  median(New_startDataTest$Utilities,
+                                         na.rm = TRUE),
+                                  New_startDataTest$Utilities)
+
+New_startDataTest$LandSlope = ifelse(is.na(New_startDataTest$LandSlope), 
+                                     median(New_startDataTest$LandSlope,
+                                            na.rm = TRUE),
+                                     New_startDataTest$LandSlope)
+
+New_startDataTest$BldgType = ifelse(is.na(New_startDataTest$BldgType), 
+                                     median(New_startDataTest$BldgType,
+                                            na.rm = TRUE),
+                                     New_startDataTest$BldgType)
 
 summary(New_startDataTest) # check to make sure there are no more NA's
 summary(startDataTrain)
