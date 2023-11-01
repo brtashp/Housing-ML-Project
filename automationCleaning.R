@@ -5,6 +5,33 @@ dataTrain = read.csv("train.csv")
 column_data_type = class(dataTrain[, 4])
 print(column_data_type)
 
+# Load the dplyr library for data manipulation
+library(dplyr)
+
+# Create a copy of the original data frame
+dataTrain_copy <- dataTrain
+
+# Find and process all character columns
+character_columns <- sapply(dataTrain_copy, is.character)
+
+for (col_name in names(dataTrain_copy)[character_columns]) {
+  char_column_data <- dataTrain_copy %>%
+    group_by({{col_name}}) %>%
+    summarize(MeanSalePrice = mean(SalePrice)) %>%
+    arrange(MeanSalePrice)
+  
+  char_to_numeric_mapping <- char_column_data %>%
+    mutate(NumericValue = row_number()) %>%
+    select({{col_name}}, NumericValue)
+  
+  dataTrain_copy <- dataTrain_copy %>%
+    left_join(char_to_numeric_mapping, by = col_name)
+}
+
+# Print the updated data frame
+print(dataTrain_copy)
+
+
 # Create an empty data frame to store the summary statistics
 summary_data <- data.frame(
   ColumnName = character(0),
