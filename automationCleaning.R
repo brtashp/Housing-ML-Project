@@ -10,9 +10,20 @@ summary_data <- data.frame(
   ColumnName = character(0),
   DataType = character(0),
   Mean = numeric(0),
-  Median = character(0), # Use character for mixed types
-  StdDev = numeric(0)
+  Median = character(0),
+  StdDev = numeric(0),
+  CorrelationWithSalePrice = numeric(0)
 )
+
+# Calculate the correlation with the "SalePrice" column
+sale_price <- dataTrain$SalePrice
+correlations <- sapply(dataTrain, function(x) {
+  if (is.numeric(x)) {
+    cor(x, sale_price)
+  } else {
+    NA
+  }
+})
 
 # Loop through each column in 'dataTrain'
 for (col_name in names(dataTrain)) {
@@ -36,13 +47,17 @@ for (col_name in names(dataTrain)) {
     col_median <- paste("Unique Values:", unique_values)
   }
   
+  # Calculate the correlation with the "SalePrice" column
+  correlation <- correlations[col_name]
+  
   # Create a data frame with the current column's information
   col_summary <- data.frame(
     ColumnName = col_name,
     DataType = col_type,
     Mean = col_mean,
     Median = col_median,
-    StdDev = col_stddev
+    StdDev = col_stddev,
+    CorrelationWithSalePrice = correlation
   )
   
   # Append the current column's information to the summary data frame
