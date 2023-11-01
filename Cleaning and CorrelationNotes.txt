@@ -18,6 +18,8 @@ correlated variables:
 - Neighborhood (0.46943066)
 - Condition1 (0.160270566)
 - OverallCond (0.33036411) 
+- RoofStyle (0.23977726)
+- RoofMatl (0.156743046) 
 
 most correlated variables: 
 - YearRemodAdd (0.50710097)
@@ -127,3 +129,54 @@ Checking categorial variables
 	- Hip (218877) (5) 
 	- Mansard (180568) (3)
 	- Shed (225000) (6)
+
+- RoofMatl 
+	- ClyTile (160000) (2)
+	- CompShg (179804) (3)
+	- Membran (241500) (7) 
+	- Metal (180000) (4) 
+	- Roll (137000) (1) 
+	- Tar&Grv (185406) (5)
+	- WdShngl (390250) (8) 
+	- WdShake (241400) (6)
+
+- Exterior1st 
+	- AsbShng (107386) 4
+	- AsphShn (100000) 2
+	- BrkComm (71000) 1 
+	- BrkFace (194573) 11
+	- CBlock (105000) 3
+	- CemntBd (231691) 13
+	- HdBoard (163078) 9 
+	- ImStucc (262000) 15
+	- MetalSd (149422) 5
+	- Plywood (175942) 10 
+	- Stone (258500) 14
+	- Stucco (162990) 8 
+	- VinylSd (213733) 12
+	- Wd Sdng (149842) 6
+	- WdShing (150655) 7 
+
+- Exterior2nd
+	- AsbShng (114061) 2
+	- AsphShn (138000) 4
+	- Brk Cmn (126714) 3
+	- BrkFace (195818) 11
+	- CBlock (105000) 1  
+	- CmentBd (230094) 13
+	- HdBoard (167662) 9
+	- ImStucc (252070) 14
+	- MetalSd (149803) 6
+	- Other (319000) 15
+	- Plywood (168112) 10
+	- Stone (158225) 8
+	- Stucco (155905) 7
+	- VinylSd (214433) 12
+	- Wd Sdng (148386) 5
+	- Wd Shng (161329) 8
+
+- MasVnrType
+	- BrkCmn (146318) 1
+	- BrkFace (204692) 3 
+	- None (156222) 2 
+	- Stone (265584) 4 
