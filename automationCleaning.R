@@ -1,6 +1,6 @@
 # automating data cleaning 
 
-dataTrain = read.csv("train.csv") 
+dataTrain = read.csv("train.csv")
 
 column_data_type = class(dataTrain[, 4])
 print(column_data_type)
@@ -11,13 +11,42 @@ print(character_columns)
 dataTrainChar = dataTrain[, character_columns]
 # adds the sale price column to the char dataset, dont use yet 
 #dataTrainChar$SalePrice = dataTrain$SalePrice
-
 SalePrice = dataTrain$SalePrice
+
+# adds the sale price column to a new dataframe with only the character values 
+SalePriceChar = cbind(SalePrice, dataTrainChar)
+
+result = tapply(SalePrice, SalePriceChar$MSZoning, mean)
+result2 = tapply(SalePrice, SalePriceChar$Street, mean) 
+
+result3 = cbind(result, result2)
+print(result)
+
+result <- data.frame()
+for (col_name in names(SalePriceChar)) {
+  if (is.factor(dataTrainChar[[col_name]])) {
+    # If the column is a factor, calculate the mean SalePrice for each unique value
+    mean_sale_price <- tapply(SalePrice, dataTrainChar[[col_name+1]], mean)
+    
+    # Convert the result into a data frame
+    cleanedNumChar = data.frame(Value = levels(dataTrainChar[[col_name]]), MeanSalePrice = mean_sale_price)
+    
+    # Add the results to the result data frame
+    result = cbind(result, cleanedNumChar)
+  }
+}
+print(result)
+n = length(result)
 
 result = aggregate(cbind(Value1, Value2) ~ Group, data, sum)
 
 result = tapply(dataTrain$SalePrice, dataTrainChar$MSZoning, mean)
 print(result)
+
+result = tapply(dataTrain$SalePrice, dataTrainChar$Street, mean)
+
+for (col in dataTrain)
+  
 
 result_list = list()
 
@@ -26,3 +55,10 @@ for (col in dataTrain) {
     names(result) <- c(col, "MeanSalePrice")
     result_list[[col]] <- result
 }
+
+for (col in dataTrainChar) {
+  result = 
+  resultdf = c(resultdf, dataTrainChar[col] + result[col])
+  combined_vector = c(combined_vector, original_vector[i] + new_data[i])
+}
+  
