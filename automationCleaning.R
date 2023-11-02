@@ -12,16 +12,17 @@ dataTrainChar = dataTrain[, character_columns]
 # adds the sale price column to the char dataset, dont use yet 
 #dataTrainChar$SalePrice = dataTrain$SalePrice
 
+SalePrice = dataTrain$SalePrice
 
-result = tapply(dataTrainChar$SalePrice, dataTrainChar$MSZoning, mean)
+result = aggregate(cbind(Value1, Value2) ~ Group, data, sum)
+
+result = tapply(dataTrain$SalePrice, dataTrainChar$MSZoning, mean)
 print(result)
 
 result_list = list()
 
-for (col in dataTrainChar) {
-  if (is.character(dataTrain[[col]])) {
-    result <- aggregate(dataTrain$SalePrice, by = list(dataTrain[[col]]), FUN = mean)
+for (col in dataTrain) {
+    result = aggregate(dataTrain$SalePrice, by = list(dataTrain[[col]]), FUN = mean)
     names(result) <- c(col, "MeanSalePrice")
     result_list[[col]] <- result
-  }
 }
