@@ -22,7 +22,6 @@ result2 = tapply(SalePrice, SalePriceChar$Street, mean)
 result3 = cbind(result, result2)
 print(result)
 
-result <- data.frame()
 for (col_name in names(SalePriceChar)) {
   if (is.factor(dataTrainChar[[col_name]])) {
     # If the column is a factor, calculate the mean SalePrice for each unique value
@@ -61,4 +60,10 @@ for (col in dataTrainChar) {
   resultdf = c(resultdf, dataTrainChar[col] + result[col])
   combined_vector = c(combined_vector, original_vector[i] + new_data[i])
 }
+
+
+# example of what we need to do first: 
+leveling = c("C" = 1, "RM" = 2, "RH" = 3, "RL" = 4, "FV" = 5)
+startDataTrain$MSZoning = factor(startDataTrain$MSZoning, levels = names(leveling))
+startDataTrain$MSZoning = as.integer(startDataTrain$MSZoning)
   
