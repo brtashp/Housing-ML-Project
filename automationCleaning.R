@@ -13,15 +13,47 @@ SalePrice = dataTrain$SalePrice
 # adds the sale price column to a new dataframe with only the character values 
 SalePriceChar = cbind(SalePrice, dataTrainChar)
 
-test = dataTrain[, c("MSZoning", "Street", "Alley")]
-modified_test = test
+test = dataTrain[, c("Alley", "LotShape")]
+modified_test = dataTrainChar
 
 for (col_name in names(modified_test)) {
     # If the column is a factor, calculate the mean SalePrice for each unique value
     mean_sale_price = tapply(SalePrice, modified_test[[col_name]], mean)
-    ordered = order(mean_sale_price)
-    rank = rank(ordered)
+    #ordered = order(mean_sale_price)
+    rank = rank(mean_sale_price)
     # Add the results to the result data frame
     modified_test[col_name] = rank
 }
 print(modified_test)
+
+summary(modified_test)
+
+mean_sale_price = tapply(SalePrice, modified_test$LotShape, mean)
+print(mean_sale_price)
+rank = rank(mean_sale_price)
+ordered = order(rank)
+ordered = order(mean_sale_price)
+print(ordered)
+length(ordered)
+rank = rank(ordered)
+print(rank)
+
+# below sorta works? 
+modified_test$LotShape <- ifelse(!is.na(match(modified_test$LotShape, names(rank))), 
+                              rank[match(modified_test$LotShape, names(rank))], 
+                              modified_test$LotShape)
+
+print(head(modified_test$LotShape))
+summary(modified_test$LotShape)
+
+for (col_name in names(modified_test)) {
+  # If the column is a factor, calculate the mean SalePrice for each unique value
+  mean_sale_price = tapply(SalePrice, modified_test[[col_name]], mean)
+  #ordered = order(mean_sale_price)
+  rank = rank(mean_sale_price)
+  # Add the results to the result data frame
+  modified_test[[col_name]] <- ifelse(!is.na(match(modified_test[[col_name]], names(rank))), 
+                                   rank[match(modified_test[[col_name]], names(rank))], 
+                                   modified_test[[col_name]])
+  modified_test[[col_name]] = as.numeric(modified_test[[col_name]])
+}
