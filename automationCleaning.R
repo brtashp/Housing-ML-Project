@@ -14,16 +14,14 @@ SalePrice = dataTrain$SalePrice
 SalePriceChar = cbind(SalePrice, dataTrainChar)
 
 test = dataTrain[, c("MSZoning", "Street", "Alley")]
-modified_test <- test
+modified_test = test
 
 for (col_name in names(modified_test)) {
-  if (is.factor(modified_test[[col_name]])) {
     # If the column is a factor, calculate the mean SalePrice for each unique value
     mean_sale_price = tapply(SalePrice, modified_test[[col_name]], mean)
     ordered = order(mean_sale_price)
     rank = rank(ordered)
     # Add the results to the result data frame
     modified_test[col_name] = rank
-  }
 }
 print(modified_test)
