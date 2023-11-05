@@ -1,12 +1,18 @@
-# Submission4
+# submission 5? 
 
-# load in library 
-library(randomForest)
+# load libraries 
+library(caTools)
 
-# load data in 
-dataTrain = read.csv("train.csv")
-dataTest =  read.csv("test.csv")
+# loading data 
+data = read.csv("train.csv")
 
+# split data into train and test 
+set.seed(88)
+split = sample.split(data$SalePrice, SplitRatio = 0.75)
+dataTrain = subset(quality, split == TRUE)
+dataTest = subset(quality, split == FALSE)
+
+# cleaning 
 character_columns = sapply(dataTrain, is.character)
 dataTrainChar = dataTrain[, character_columns]
 
@@ -21,26 +27,6 @@ for (col_name in names(dataTrainChar)) {
                                       dataTrainChar[[col_name]])
   dataTrainChar[[col_name]] = as.numeric(dataTrainChar[[col_name]])
 }
-
-
-character_columns = sapply(dataTest, is.character)
-dataTestChar = dataTest[, character_columns]
-
-for (col_name in names(dataTestChar)) {
-  # If the column is a factor, calculate the mean SalePrice for each unique value
-  mean_sale_price = tapply(SalePrice, dataTestChar[[col_name]], mean)
-  #ordered = order(mean_sale_price)
-  rank = rank(mean_sale_price)
-  # Add the results to the result data frame
-  dataTestChar[[col_name]] <- ifelse(!is.na(match(dataTestChar[[col_name]], names(rank))), 
-                                      rank[match(dataTestChar[[col_name]], names(rank))], 
-                                      dataTestChar[[col_name]])
-  dataTestChar[[col_name]] = as.numeric(dataTestChar[[col_name]])
-}
-
-
-
-
 
 
 # testing the accuracy (need to use the train data to get the accuracy)
