@@ -434,23 +434,16 @@ summary(New_startDataTest) # check to make sure there are no more NA's
 summary(startDataTrain)
 
 
-# split data into train and test (to test model)
-set.seed(88)
-split = sample.split(startDataTrain$SalePrice, SplitRatio = 0.75)
-dataTrain = subset(startDataTrain, split == TRUE)
-dataTest = subset(startDataTrain, split == FALSE)
-
-
 # Train the Random Forest model
-startModel = randomForest(SalePrice ~ ., data = dataTrain, ntree = 500)
+startModel = randomForest(SalePrice ~ ., data = startDataTrain, ntree = 500)
 
 # Predict sale prices for the test dataset
-predictionStart = predict(startModel, newdata = dataTest)
+predictionStart = predict(startModel, newdata = New_startDataTest)
 
-mae = mean(abs(predictionStart - dataTrain$SalePrice))
+mae = mean(abs(predictionStart - startDataTrain$SalePrice))
 
 # Calculate the Root Mean Squared Error (RMSE)
-rmse = sqrt(mean((predictionStart - dataTrain$SalePrice)^2))
+rmse = sqrt(mean((predictionStart - startDataTrain$SalePrice)^2))
 
 # Print the MAE and RMSE
 cat("Mean Absolute Error (MAE): ", mae, "\n")
@@ -459,6 +452,6 @@ cat("Root Mean Squared Error (RMSE): ", rmse, "\n")
 # Define a threshold for acceptable error
 threshold = 10000
 # Calculate accuracy as the percentage of predictions within the threshold
-accuracy = mean(abs(predictionStart - dataTrain$SalePrice) < threshold)
+accuracy = mean(abs(predictionStart - startDataTrain$SalePrice) < threshold)
 # Print accuracy
 cat("Accuracy within $", threshold, ": ", accuracy * 100, "%\n")
