@@ -16,7 +16,6 @@ SalePrice = dataTrain$SalePrice
 # cleaning 
 character_columns = sapply(dataTrain, is.character)
 dataTrainChar = dataTrain[, character_columns]
-SalePrice = dataTrain$SalePrice
 
 for (col_name in names(dataTrainChar)) {
   # If the column is a factor, calculate the mean SalePrice for each unique value
@@ -50,16 +49,18 @@ dataTrainAll[] <- lapply(dataTrainAll, function(x) {
 character_columns = sapply(dataTrain, is.character)
 dataTestChar = dataTest[, character_columns]
 
-for (col_name in names(dataTestChar)) {
+for (col_name in names(dataTrainChar)) {
   # If the column is a factor, calculate the mean SalePrice for each unique value
   mean_sale_price = tapply(SalePrice, dataTrainChar[[col_name]], mean)
-  rank = rank(mean_sale_price)
+  
+  # Use a different variable name for rank
+  rank_values = rank(mean_sale_price)
   
   # Rename the values in dataTestChar based on rank
-  dataTestChar[[col_name]] <- ifelse(!is.na(match(dataTestChar[[col_name]], names(rank))), 
-                                     rank[match(dataTestChar[[col_name]], names(rank))], 
+  dataTestChar[[col_name]] <- ifelse(!is.na(match(dataTestChar[[col_name]], names(mean_sale_price))), 
+                                     rank_values[match(dataTestChar[[col_name]], names(mean_sale_price))], 
                                      dataTestChar[[col_name]])
-  dataTestChar[[col_name]] = as.numeric(dataTestChar[[col_name]])
+  dataTestChar[[col_name]] = as.integer(dataTestChar[[col_name]])
 }
 
 # creates dataframe with only numeric/int values 
