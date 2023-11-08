@@ -13,10 +13,11 @@ dataTrain = dataTrain[-which(dataTrain$MSZoning %in% outliers),]
 boxplot(dataTrain$SalePrice ~ dataTrain$MSZoning)
 
 # for numeric values 
-boxplot(dataTrain$SalePrice ~ dataTrain$MSSubClass)
-outliers = boxplot(dataTrain$MSZoning, plot=FALSE)$out
-dataTrainOut = dataTrain
-dataTrain = dataTrain[-which(dataTrain$MSZoning %in% outliers),]
+boxplot(dataTrain$SalePrice ~ dataTrain$LotFrontage)
+# na.rm = TRUE is used to ignore the NA values 
+outliers = boxplot(dataTrain$LotFrontage, plot=FALSE, na.rm = TRUE)$out
+#dataTrainOut = dataTrain
+dataTrain1 = dataTrain[-which(dataTrain$LotFrontage %in% outliers),]
 
 
 # for loop for removing outliers in numeric data
@@ -25,12 +26,16 @@ dataTrainChar = dataTrain[, character_columns]
 missing_columns = setdiff(names(dataTrain), names(dataTrainChar))
 dataTrainNum <- dataTrain[, missing_columns]
 
-dataTrainOut = dataTrain
+summary(dataTrain)
+sum(is.na(dataTrainNum$LotFrontage))
+
 
 for (col_name in names(dataTrainNum)) {
-  outliers = boxplot(dataTrainNum[[col_name]], plot=FALSE)$out
-  dataTrainNum = dataTrainNum[-which(dataTrainNum[[col_name]] %in% outliers),]
+  outliers = boxplot(dataTrainNum[[col_name]], plot=FALSE, na.rm = TRUE)$out
+  dataTrainOut = dataTrainNum[-which(dataTrainNum[[col_name]] %in% outliers),]
 }
+
+sum(is.na(dataTrainOut$LotFrontage))
 
 
 # normality testing
