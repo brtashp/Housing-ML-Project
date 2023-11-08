@@ -4,7 +4,7 @@
 # load libraries 
 library(caTools)
 library(dplyr)
-
+library(keras)
 
 # loading data 
 dataTrain = read.csv("train.csv")
@@ -77,14 +77,54 @@ dataTestAll = cbind(dataTestChar, dataTestNum)
 dataTestAll <- dataTestAll %>%
   mutate(across(everything(), ~ ifelse(is.na(.), mean(., na.rm = TRUE), .)))
 
-summary(dataTestAll)
+#summary(dataTestAll)
 
 # correlation matrix 
-correlation = cor(dataTrainAll)
-print(correlation)
+#correlation = cor(dataTrainAll)
+#print(correlation)
 
 # split data into train and test (to test model)
-#set.seed(88)
-#split = sample.split(dataTrainAll$SalePrice, SplitRatio = 0.75)
-#dataTrain = subset(dataTrainAll, split == TRUE)
-#dataTest = subset(dataTrainAll, split == FALSE)
+set.seed(88)
+split = sample.split(dataTrainAll$SalePrice, SplitRatio = 0.75)
+dataTrain = subset(dataTrainAll, split == TRUE)
+dataTest = subset(dataTrainAll, split == FALSE)
+
+# Exclude the "SalePrice" column by indexing
+scaled_train_data <- dataTrain[, -which(names(dataTrain) == "SalePrice")]
+scaled_test_data <- dataTest[, -which(names(dataTest) == "SalePrice")]
+
+# Define the neural network architecture
+model <- keras_model_sequential()
+
+model %>%
+  layer_dense(units = 64, activation = "relu", input_shape = ncol(scaled_train_data)) %>%
+  layer_dense(units = 32, activation = "relu") %>%
+  layer_dense(units = 1, activation = "linear")  # Linear activation for regression
+
+# Compile the model
+model %>% compile(
+  loss = "mean_squared_error",
+  optimizer = optimizer_adam(lr = 0.001)
+)
+
+# Extract the target variable (SalePrice) from the training data
+train_labels <- dataTrain$SalePrice
+
+# Fit the model
+history <- model %>% fit(
+  x = scaled_train_data,
+  y = train_labels,
+  epochs = 100,  # You can adjust the number of epochs
+  batch_size = 32,
+  validation_split = 0.2  # Optionally specify a validation set
+)
+
+# Extract the target variable (SalePrice) from the testing data
+test_labels <- dataTest$SalePrice
+
+# Make predictions on the test data
+predictions <- model %>% predict(scaled_test_data)
+
+# Calculate metrics (e.g., Mean Absolute Error)
+mae <- mean(abs(predictions - test_labels))
+cat("Mean Absolute Error:", mae, "\n")
