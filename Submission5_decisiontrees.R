@@ -12,7 +12,7 @@ dataTest = read.csv("test.csv")
 # remove unnecessary columns 
 dataTrain$Id = NULL
 dataTest$Id = NULL
-SalePrice = dataTrain$SalePrice
+SalePrice1 = dataTrain$SalePrice
 
 # cleaning Train and test
 character_columns = sapply(dataTrain, is.character)
@@ -23,7 +23,7 @@ dataTestChar = dataTest[, character_columns]
 
 #below works for test
 for (col_name in names(dataTrainChar)) {
-  mean_sale_price = tapply(SalePrice, dataTrainChar[[col_name]], mean)
+  mean_sale_price = tapply(SalePrice1, dataTrainChar[[col_name]], mean)
   
   # Use a different variable name for rank
   rank_values = rank(mean_sale_price)
@@ -37,7 +37,7 @@ for (col_name in names(dataTrainChar)) {
 # below works for train 
 for (col_name in names(dataTrainChar)) {
   # If the column is a factor, calculate the mean SalePrice for each unique value
-  mean_sale_price = tapply(SalePrice, dataTrainChar[[col_name]], mean)
+  mean_sale_price = tapply(SalePrice1, dataTrainChar[[col_name]], mean)
   #ordered = order(mean_sale_price)
   rank = rank(mean_sale_price)
   
@@ -84,21 +84,21 @@ correlation = cor(dataTrainAll)
 print(correlation)
 
 # split data into train and test (to test model)
-set.seed(88)
-split = sample.split(dataTrainAll$SalePrice, SplitRatio = 0.75)
-dataTrain = subset(dataTrainAll, split == TRUE)
-dataTest = subset(dataTrainAll, split == FALSE)
+#set.seed(88)
+#split = sample.split(dataTrainAll$SalePrice, SplitRatio = 0.75)
+#dataTrain = subset(dataTrainAll, split == TRUE)
+#dataTest = subset(dataTrainAll, split == FALSE)
+#dataTest$SalePrice = NULL
 
-# testing the accuracy (need to use the train data to get the accuracy) ###
-target_variable = dataTrain$SalePrice
-predictor_variables = dataTrain[, !names(dataTrain) %in% "SalePrice"]
+dataTrainAll <- dataTrainAll[-2, ]
+
+# Extract the target variable and predictor variables from dataTrainAll
+target_variable <- dataTrainAll$SalePrice
+predictor_variables <- dataTrainAll[, !names(dataTrainAll) %in% "SalePrice"]
 
 # Fit a decision tree model on the training data (dataTrain)
-tree_model = rpart(target_variable ~ ., data = dataTrain)
+tree_model <- rpart(target_variable ~ ., data = dataTrainAll[, !names(dataTrainAll) %in% "SalePrice"])
 plot(tree_model)
 
-# Create a new data frame for prediction using the testing dataset (datatest)
-new_data = dataTest[, names(dataTest) %in% names(predictor_variables)]
-
 # Make predictions on the testing data
-predictions <- predict(tree_model, newdata=dataTest, type = "vector")
+predictions <- predict(tree_model, dataTestAll, type = "vector")
