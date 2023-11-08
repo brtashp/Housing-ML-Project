@@ -1,10 +1,10 @@
-# submission 5? 
-# rank is based on RMSE
+# submission 5.2
+# testing other methods of predicitive modeling
 
 # load libraries 
 library(caTools)
-library(randomForest)
 library(dplyr)
+library(rpart)
 
 # loading data 
 dataTrain = read.csv("train.csv")
@@ -30,8 +30,8 @@ for (col_name in names(dataTrainChar)) {
   
   # Rename the values in dataTestChar based on rank
   dataTestChar[[col_name]] <- ifelse(!is.na(match(dataTestChar[[col_name]], names(mean_sale_price))), 
-                                  rank_values[match(dataTestChar[[col_name]], names(mean_sale_price))], 
-                                  dataTestChar[[col_name]])
+                                     rank_values[match(dataTestChar[[col_name]], names(mean_sale_price))], 
+                                     dataTestChar[[col_name]])
   dataTestChar[[col_name]] = as.numeric(dataTestChar[[col_name]])
 }
 # below works for train 
@@ -40,7 +40,7 @@ for (col_name in names(dataTrainChar)) {
   mean_sale_price = tapply(SalePrice, dataTrainChar[[col_name]], mean)
   #ordered = order(mean_sale_price)
   rank = rank(mean_sale_price)
-    
+  
   # Add the results to the result data frame
   dataTrainChar[[col_name]] <- ifelse(!is.na(match(dataTrainChar[[col_name]], names(rank))), 
                                       rank[match(dataTrainChar[[col_name]], names(rank))], 
@@ -84,29 +84,35 @@ correlation = cor(dataTrainAll)
 print(correlation)
 
 # split data into train and test (to test model)
-#set.seed(88)
-#split = sample.split(dataTrainAll$SalePrice, SplitRatio = 0.75)
-#dataTrain = subset(dataTrainAll, split == TRUE)
-#dataTest = subset(dataTrainAll, split == FALSE)
+set.seed(88)
+split = sample.split(dataTrainAll$SalePrice, SplitRatio = 0.75)
+dataTrain = subset(dataTrainAll, split == TRUE)
+dataTest = subset(dataTrainAll, split == FALSE)
 
 # testing the accuracy (need to use the train data to get the accuracy) ###
-startModel = randomForest(SalePrice ~ ., data = dataTrainAll, ntree = 500)
+target_variable = dataTrain$SalePrice
+predictor_variables = dataTrain[, !names(dataTrain) %in% "SalePrice"]
 
-# Predict sale prices for the test dataset
-predictionStart = predict(startModel, newdata = dataTestAll)
+# Fit a decision tree model on the training data (dataTrain)
+tree_model = rpart(target_variable ~ ., data = dataTrain)
+plot(tree_model)
 
-mae = mean(abs(predictionStart - dataTrainAll$SalePrice))
+# Create a new data frame for prediction using the testing dataset (datatest)
+new_data = dataTest[, names(dataTest) %in% names(predictor_variables)]
 
-# Calculate the Root Mean Squared Error (RMSE)
-rmse = sqrt(mean((predictionStart - dataTrainAll$SalePrice)^2))
+# Make predictions on the testing data
+predictions <- predict(tree_model, new_data, type = "class")
 
-# Print the MAE and RMSE
-cat("Mean Absolute Error (MAE): ", mae, "\n")
-cat("Root Mean Squared Error (RMSE): ", rmse, "\n")
+# Assuming you have defined your target variable and predictor variables from the training dataset
+target_variable <- dataTrain$SalePrice
+predictor_variables <- dataTrain[, !names(dataTrain) %in% "SalePrice"]
 
-# Define a threshold for acceptable error
-threshold = 10000
-# Calculate accuracy as the percentage of predictions within the threshold
-accuracy = mean(abs(predictionStart - dataTrainAll$SalePrice) < threshold)
-# Print accuracy
-cat("Accuracy within $", threshold, ": ", accuracy * 100, "%\n")
+# Fit a decision tree model on the training data (dataTrain)
+tree_model <- rpart(target_variable ~ ., data = dataTrain)
+plot(tree_model)
+
+# Create a new data frame for prediction using the testing dataset (datatest)
+new_data <- dataTest[, names(dataTest) %in% names(predictor_variables)]
+
+# Make predictions on the testing data
+predictions <- predict(tree_model, new_data, type = "class")
