@@ -1,23 +1,36 @@
 # identifying normality within data code
 
+library(ggplot2)
+
 dataTrain = read.csv("train.csv")
 dataTest = read.csv("test.csv")
 
+# removes outliers (for each row) for character (so far doesnt work for character values)
+boxplot(dataTrain$SalePrice ~ dataTrain$MSZoning)
+outliers = boxplot(dataTrain$SalePrice ~ dataTrain$MSZoning, plot=FALSE)$out
+dataTrainOut = dataTrain
+dataTrain = dataTrain[-which(dataTrain$MSZoning %in% outliers),]
+boxplot(dataTrain$SalePrice ~ dataTrain$MSZoning)
 
-# testing to remove outliers
-data <- iris[,1:4]
-dim(data)
-## [1] 150   4
+# for numeric values 
+boxplot(dataTrain$SalePrice ~ dataTrain$MSSubClass)
+outliers = boxplot(dataTrain$MSZoning, plot=FALSE)$out
+dataTrainOut = dataTrain
+dataTrain = dataTrain[-which(dataTrain$MSZoning %in% outliers),]
 
-quartiles <- quantile(data$Sepal.Width, probs=c(.25, .75), na.rm = FALSE)
-IQR <- IQR(data$Sepal.Width)
 
-Lower <- quartiles[1] - 1.5*IQR
-Upper <- quartiles[2] + 1.5*IQR 
+# for loop for removing outliers in numeric data
+character_columns = sapply(dataTrain, is.character)
+dataTrainChar = dataTrain[, character_columns]
+missing_columns = setdiff(names(dataTrain), names(dataTrainChar))
+dataTrainNum <- dataTrain[, missing_columns]
 
-data_no_outlier <- subset(data, data$Sepal.Width > Lower & data$Sepal.Width < Upper)
+dataTrainOut = dataTrain
 
-dim(data_no_outlier)
+for (col_name in names(dataTrainNum)) {
+  outliers = boxplot(dataTrainNum[[col_name]], plot=FALSE)$out
+  dataTrainNum = dataTrainNum[-which(dataTrainNum[[col_name]] %in% outliers),]
+}
 
 
 # normality testing
