@@ -61,9 +61,16 @@ numeric_columns <- sapply(dataTrain, is.numeric)
 # Numeric columns to check for normality
 columns_to_check_numeric <- names(dataTrain)[numeric_columns]
 
+normality_results <- data.frame(Column = character(0), PValue = numeric(0))
+
 for (col in columns_to_check_numeric) {
   # Perform normality checks as before
   shapiro_result <- shapiro.test(dataTrain[[col]])
+  
+  # Append the results to the new dataframe
+  normality_results <- rbind(normality_results, data.frame(Column = col, PValue = shapiro_result$p.value))
+  
+  # Create QQ plot and histogram if desired
   qqnorm(dataTrain[[col]])
   qqline(dataTrain[[col]])
   hist(dataTrain[[col]], breaks = 20, main = paste("Histogram of", col))
