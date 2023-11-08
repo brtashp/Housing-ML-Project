@@ -84,21 +84,36 @@ correlation = cor(dataTrainAll)
 print(correlation)
 
 # split data into train and test (to test model)
-#set.seed(88)
-#split = sample.split(dataTrainAll$SalePrice, SplitRatio = 0.75)
-#dataTrain = subset(dataTrainAll, split == TRUE)
-#dataTest = subset(dataTrainAll, split == FALSE)
-#dataTest$SalePrice = NULL
+set.seed(88)
+split = sample.split(dataTrainAll$SalePrice, SplitRatio = 0.75)
+dataTrain = subset(dataTrainAll, split == TRUE)
+dataTest = subset(dataTrainAll, split == FALSE)
+dataTest2 = dataTest
+dataTest$SalePrice = NULL
 
-dataTrainAll <- dataTrainAll[-2, ]
+#dataTrainAll <- dataTrainAll[-2, ]
 
 # Extract the target variable and predictor variables from dataTrainAll
-target_variable <- dataTrainAll$SalePrice
-predictor_variables <- dataTrainAll[, !names(dataTrainAll) %in% "SalePrice"]
+target_variable <- dataTrain$SalePrice
+predictor_variables <- dataTrain[, !names(dataTrain) %in% "SalePrice"]
 
 # Fit a decision tree model on the training data (dataTrain)
-tree_model <- rpart(target_variable ~ ., data = dataTrainAll[, !names(dataTrainAll) %in% "SalePrice"])
+tree_model <- rpart(target_variable ~ ., data = dataTrain[, !names(dataTrain) %in% "SalePrice"])
 plot(tree_model)
 
 # Make predictions on the testing data
-predictions <- predict(tree_model, dataTestAll, type = "vector")
+predictions <- predict(tree_model, dataTest, type = "vector")
+
+actual_values = dataTest2$SalePrice
+
+# Calculate the Mean Squared Error (MSE)
+mse <- mean((predictions - actual_values)^2)
+
+# Calculate R-squared (R^2)
+ss_res <- sum((actual_values - predictions)^2)
+ss_tot <- sum((actual_values - mean(actual_values))^2)
+rsquared <- 1 - (ss_res / ss_tot)
+
+# Print the MSE and R-squared
+cat("Mean Squared Error (MSE):", mse, "\n")
+cat("R-squared (R^2):", rsquared, "\n")
