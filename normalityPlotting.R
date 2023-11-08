@@ -1,6 +1,9 @@
 # identifying normality within data code
 
 library(ggplot2)
+#install.packages("ggstatsplot")
+# Load the package
+library(ggstatsplot)
 
 dataTrain = read.csv("train.csv")
 dataTest = read.csv("test.csv")
@@ -27,15 +30,29 @@ missing_columns = setdiff(names(dataTrain), names(dataTrainChar))
 dataTrainNum <- dataTrain[, missing_columns]
 
 summary(dataTrain)
-sum(is.na(dataTrainNum$LotFrontage))
+sum(is.na(dataTrain$LotFrontage))
 
+# below works now 
+Q <- quantile(dataTrain$LotFrontage, probs=c(.25, .75), na.rm = TRUE)
+iqr <- IQR(dataTrain$LotFrontage, na.rm = TRUE)
+up <-  Q[2]+1.5*iqr # Upper Range  
+low<- Q[1]-1.5*iqr # Lower Range
+eliminated<- subset(dataTrain$LotFrontage, dataTrain$LotFrontage > (Q[1] - 1.5*iqr) & dataTrain$LotFrontage < (Q[2]+1.5*iqr), na.rm = TRUE)
 
+dataTrain$SalePrice = SalePrice
+dataTrain$LotFrontage = LotFrontage
+
+boxplot(dataTrain$SalePrice ~ dataTrain$LotFrontage)
+ggbetweenstats(dataTrain, SalePrice, LotFrontage, outlier.tagging = TRUE)
+ggbetweenstats(eliminated, SalePrice, LotFrontage, outlier.tagging = TRUE)
+
+# this works, need to fix how its storing the values 
 for (col_name in names(dataTrainNum)) {
   outliers = boxplot(dataTrainNum[[col_name]], plot=FALSE, na.rm = TRUE)$out
-  dataTrainOut = dataTrainNum[-which(dataTrainNum[[col_name]] %in% outliers),]
+  dataTrainNumOut = dataTrainNum[-which(dataTrainNum[[col_name]] %in% outliers),]
 }
 
-sum(is.na(dataTrainOut$LotFrontage))
+sum(is.na(eliminated$LotFrontage))
 
 
 # normality testing

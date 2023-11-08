@@ -77,6 +77,10 @@ dataTestAll = cbind(dataTestChar, dataTestNum)
 dataTestAll <- dataTestAll %>%
   mutate(across(everything(), ~ ifelse(is.na(.), mean(., na.rm = TRUE), .)))
 
+# check for NA data
+#sum(is.na(dataTestAll))
+#sum(is.na(dataTrainAll))
+
 # split data into train and test (to test model)
 #set.seed(88)
 #split = sample.split(dataTrainAll$SalePrice, SplitRatio = 0.75)
@@ -88,6 +92,10 @@ dataTestAll <- dataTestAll %>%
 # Create a gradient boosting model
 gbm_model <- gbm(SalePrice ~ ., data = dataTrainAll, n.trees = 100, interaction.depth = 3)
 predictions <- predict(gbm_model, newdata = dataTestAll, n.trees = 100)
+
+IDnum = 1461:2919
+MySubmission = data.frame(Id = IDnum, SalePrice = predictions)
+write.csv(MySubmission, "predictionsGradientBoost.csv", row.names=FALSE)
 
 # Testing the predictions
 #print(predictions)
