@@ -101,18 +101,4 @@ plot(tree_model)
 new_data = dataTest[, names(dataTest) %in% names(predictor_variables)]
 
 # Make predictions on the testing data
-predictions <- predict(tree_model, new_data, type = "class")
-
-# Assuming you have defined your target variable and predictor variables from the training dataset
-target_variable <- dataTrain$SalePrice
-predictor_variables <- dataTrain[, !names(dataTrain) %in% "SalePrice"]
-
-# Fit a decision tree model on the training data (dataTrain)
-tree_model <- rpart(target_variable ~ ., data = dataTrain)
-plot(tree_model)
-
-# Create a new data frame for prediction using the testing dataset (datatest)
-new_data <- dataTest[, names(dataTest) %in% names(predictor_variables)]
-
-# Make predictions on the testing data
-predictions <- predict(tree_model, new_data, type = "class")
+predictions <- predict(tree_model, newdata=dataTest, type = "vector")
