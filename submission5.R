@@ -12,6 +12,14 @@ dataTest = read.csv("test.csv")
 # remove unnecessary columns 
 dataTrain$Id = NULL
 dataTest$Id = NULL
+dataTrain$PoolQC = NULL
+dataTest$PoolQC = NULL
+dataTrain$MiscFeature = NULL
+dataTest$MiscFeature = NULL
+dataTrain$Alley = NULL
+dataTest$Alley = NULL
+dataTrain$Fence = NULL
+dataTest$Fence = NULL
 SalePrice = dataTrain$SalePrice
 
 # cleaning Train and test
@@ -77,11 +85,11 @@ dataTestAll = cbind(dataTestChar, dataTestNum)
 dataTestAll <- dataTestAll %>%
   mutate(across(everything(), ~ ifelse(is.na(.), mean(., na.rm = TRUE), .)))
 
-summary(dataTestAll)
+#summary(dataTestAll)
 
 # correlation matrix 
-correlation = cor(dataTrainAll)
-print(correlation)
+#correlation = cor(dataTrainAll)
+#print(correlation)
 
 # split data into train and test (to test model)
 #set.seed(88)
