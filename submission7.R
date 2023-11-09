@@ -32,6 +32,7 @@ dataTest$Alley = NULL
 dataTrain$Fence = NULL
 dataTest$Fence = NULL
 
+# creating a character only column
 character_columns = sapply(dataTrain, is.character)
 dataTrainChar = dataTrain[, character_columns]
 
@@ -40,8 +41,8 @@ for (col_name in names(dataTrainChar)) {
   # turn character values in numeric 
   factor_vector <- factor(dataTrainChar[[col_name]])
   dataTrainCharNum[[col_name]] <- as.numeric(factor_vector)
-  
   # removing outliers 
+  
 }
 # i dont like this method below 
 SalePrice1 = dataTrain$SalePrice
@@ -53,12 +54,10 @@ for (value in unique(dataTrainCharNum$MSZoning)) {
 }
 
 column_of_interest <- "MSZoning"
-
 # Calculate the quartiles and IQR for the "SalePrice" variable
 Q1 <- quantile(SalePrice1, 0.25)
 Q3 <- quantile(SalePrice1, 0.75)
 IQR <- Q3 - Q1
-
 # Set lower and upper bounds for identifying outliers
 lower_bound <- Q1 - 1.5 * IQR
 upper_bound <- Q3 + 1.5 * IQR
@@ -69,6 +68,16 @@ for (color_value in unique(dataTrainCharNum$MSZoning)) {
   dataTrainCharNum <- dataTrainCharNum[!outlier_rows, ]
 }
 length(dataTrainCharNum$MSZoning)
+
+
+
+
+
+
+
+
+
+
 
 for (col_name in names(dataTrainChar)) {
   # If the column is a factor, calculate the mean SalePrice for each unique value

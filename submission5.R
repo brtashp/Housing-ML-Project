@@ -107,15 +107,15 @@ IDnum = 1461:2919
 MySubmission = data.frame(Id = IDnum, SalePrice = predictions)
 write.csv(MySubmission, "predictionsRandomForest.csv", row.names=FALSE)
 
-#mae = mean(abs(predictionStart - dataTrainAll$SalePrice))
+#mae = mean(abs(predictions - dataTrain$SalePrice))
 # Calculate the Root Mean Squared Error (RMSE)
-#rmse = sqrt(mean((predictionStart - dataTrainAll$SalePrice)^2))
+#rmse = sqrt(mean((predictions - dataTrain$SalePrice)^2))
 # Print the MAE and RMSE
 #cat("Mean Absolute Error (MAE): ", mae, "\n")
 #cat("Root Mean Squared Error (RMSE): ", rmse, "\n")
 # Define a threshold for acceptable error
 #threshold = 10000
 # Calculate accuracy as the percentage of predictions within the threshold
-#accuracy = mean(abs(predictionStart - dataTrainAll$SalePrice) < threshold)
+#accuracy = mean(abs(predictionst - dataTrain$SalePrice) < threshold)
 # Print accuracy
 #cat("Accuracy within $", threshold, ": ", accuracy * 100, "%\n")
