@@ -4,6 +4,17 @@
 library(caTools)
 library(dplyr)
 
+# functions created
+# Function to remove outliers based on z-scores within each level of each column
+remove_outliers <- function(df, variable, factor_variable, threshold = 3) {
+  df %>%
+    group_by({{ factor_variable }}) %>%
+    mutate(z_score = scale({{ variable }})) %>%
+    filter(abs(z_score) <= threshold) %>%
+    ungroup() %>%
+    select(-z_score)
+}
+
 dataTrain = read.csv("train.csv")
 dataTest = read.csv("test.csv")
 
@@ -32,66 +43,46 @@ dataTest$Alley = NULL
 dataTrain$Fence = NULL
 dataTest$Fence = NULL
 
+SalePrice1 = dataTrain$SalePrice
+
 # creating a character only column
 character_columns = sapply(dataTrain, is.character)
 dataTrainChar = dataTrain[, character_columns]
 
+# turn character values in numeric 
 dataTrainCharNum = dataTrainChar
 for (col_name in names(dataTrainChar)) {
-  # turn character values in numeric 
   factor_vector <- factor(dataTrainChar[[col_name]])
   dataTrainCharNum[[col_name]] <- as.numeric(factor_vector)
-  # removing outliers 
-  
-}
-# i dont like this method below 
-SalePrice1 = dataTrain$SalePrice
-average_saleprice_by_column <- tapply(SalePrice1, dataTrainCharNum[, "MSZoning"], mean)
-threshold <- 2 * sd(SalePrice1)
-for (value in unique(dataTrainCharNum$MSZoning)) {
-  outlier_rows <- abs(SalePrice1 - average_saleprice_by_column[value]) > threshold
-  dataTrainCharNum <- dataTrainCharNum[!(dataTrainCharNum$MSZoning == value & outlier_rows), ]
 }
 
-column_of_interest <- "MSZoning"
-# Calculate the quartiles and IQR for the "SalePrice" variable
-Q1 <- quantile(SalePrice1, 0.25)
-Q3 <- quantile(SalePrice1, 0.75)
-IQR <- Q3 - Q1
-# Set lower and upper bounds for identifying outliers
-lower_bound <- Q1 - 1.5 * IQR
-upper_bound <- Q3 + 1.5 * IQR
 
-# Remove rows where the "SalePrice" for each "color" value falls outside the bounds
-for (color_value in unique(dataTrainCharNum$MSZoning)) {
-  outlier_rows <- (dataTrainCharNum$MSZoning == color_value) & (dataTrainCharNum$SalePrice < lower_bound | dataTrainCharNum$SalePrice > upper_bound)
-  dataTrainCharNum <- dataTrainCharNum[!outlier_rows, ]
-}
-length(dataTrainCharNum$MSZoning)
+# removing outliers 
+# adds the saleprice column to the dataframe
+dataTrainCharNum = data.frame(dataTrainCharNum, SalePrice = SalePrice1)
+
+dataTrainCharClean = data.frame()
 
 
-
-
-
-# Assuming your dataset is named 'data'
-# Convert MSZoning to a factor if not already
-
-MSZoning <- as.factor(dataTrain$MSZoning)
-
-SalePrice = dataTrain$SalePrice
-
-# Function to remove outliers based on z-scores within each level of MSZoning
-remove_outliers <- function(df, variable, factor_variable, threshold = 2) {
-  df %>%
-    group_by({{ factor_variable }}) %>%
-    mutate(z_score = scale({{ variable }})) %>%
-    filter(abs(z_score) <= threshold) %>%
-    ungroup() %>%
-    select(-z_score)
+cleaned = list()
+cleaned = remove_outliers(dataTrainCharNum, SalePrice, dataTrainCharNum$MSZoning)
+dataTrainCharNum <- dataTrainCharNum[, -which(names(dataTrainCharNum) == "MSZoning")]
+for (col_name in names(dataTrainCharNum)) {
+  cleaned = remove_outliers(cleaned, SalePrice, cleaned[[col_name]])
 }
 
-# Apply the function to your dataset
-cleaned_data <- remove_outliers(dataTrain, SalePrice, MSZoning)
+cleaned = remove_outliers(dataTrainCharNum, SalePrice, dataTrainCharNum$MSZoning)
+cleaned = remove_outliers(cleaned, SalePrice, cleaned$Street)
+cleaned = remove_outliers(cleaned, SalePrice, cleaned$LotShape)
+
+
+
+
+dataTrainCharNum = data.frame(dataTrainCharNum, SalePrice = SalePrice1)
+# below works now, need to have both SalePrice and factor variable in the same 
+# dataset, or add the saleprice back, see above
+# idea: maybe add the numeric columns back and then remove the outliers?
+dataTrainCharClean = remove_outliers(dataTrainCharNum, SalePrice, MSZoning)
 
 
 boxplot(dataTrain$SalePrice ~ dataTrain$MSZoning)
