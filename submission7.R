@@ -73,12 +73,33 @@ length(dataTrainCharNum$MSZoning)
 
 
 
+# Assuming your dataset is named 'data'
+# Convert MSZoning to a factor if not already
+
+MSZoning <- as.factor(dataTrain$MSZoning)
+
+SalePrice = dataTrain$SalePrice
+
+# Function to remove outliers based on z-scores within each level of MSZoning
+remove_outliers <- function(df, variable, factor_variable, threshold = 2) {
+  df %>%
+    group_by({{ factor_variable }}) %>%
+    mutate(z_score = scale({{ variable }})) %>%
+    filter(abs(z_score) <= threshold) %>%
+    ungroup() %>%
+    select(-z_score)
+}
+
+# Apply the function to your dataset
+cleaned_data <- remove_outliers(dataTrain, SalePrice, MSZoning)
+
+
+boxplot(dataTrain$SalePrice ~ dataTrain$MSZoning)
+boxplot(cleaned_data$SalePrice ~ cleaned_data$MSZoning)
 
 
 
-
-
-
+# for loop example 
 for (col_name in names(dataTrainChar)) {
   # If the column is a factor, calculate the mean SalePrice for each unique value
   mean_sale_price = tapply(SalePrice, dataTrainChar[[col_name]], mean)
