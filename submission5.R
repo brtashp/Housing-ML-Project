@@ -20,6 +20,9 @@ dataTrain$Alley = NULL
 dataTest$Alley = NULL
 dataTrain$Fence = NULL
 dataTest$Fence = NULL
+dataTrain$MSZoning = NULL
+dataTest$MSZoning = NULL
+
 SalePrice = dataTrain$SalePrice
 
 # cleaning Train and test
@@ -87,6 +90,16 @@ dataTestAll <- dataTestAll %>%
 
 #summary(dataTestAll)
 
+mainFCTrain = dataTrainAll[, c("SalePrice", "Neighborhood", "ExterQual", "Foundation",
+"BsmtQual", "KitchenQual", "GarageFinish", "OverallQual", "YearBuilt", "YearRemodAdd",
+"MasVnrArea", "TotalBsmtSF", "X1stFlrSF", "GrLivArea", "FullBath", "TotRmsAbvGrd",
+"Fireplaces", "GarageYrBlt", "GarageYrBlt", "GarageArea")]
+
+mainFCTest = dataTestAll[, c("Neighborhood", "ExterQual", "Foundation",
+                               "BsmtQual", "KitchenQual", "GarageFinish", "OverallQual", "YearBuilt", "YearRemodAdd",
+                               "MasVnrArea", "TotalBsmtSF", "X1stFlrSF", "GrLivArea", "FullBath", "TotRmsAbvGrd",
+                               "Fireplaces", "GarageYrBlt", "GarageYrBlt", "GarageArea")]
+
 # correlation matrix 
 #correlation = cor(dataTrainAll)
 #print(correlation)
@@ -95,10 +108,10 @@ dataTestAll <- dataTestAll %>%
 #set.seed(88)
 #split = sample.split(dataTrainAll$SalePrice, SplitRatio = 0.75)
 #dataTrain = subset(dataTrainAll, split == TRUE)
-#dataTest = subset(dataTrainAll, split == FALSE)
+#dataTrain = subset(dataTrainAll, split == FALSE)
 
 # testing the accuracy (need to use the train data to get the accuracy) ###
-startModel = randomForest(SalePrice ~ ., data = dataTrainAll, ntree = 500)
+startModel = randomForest(SalePrice ~ ., data = dataTrainAll, ntree = 1000)
 
 # Predict sale prices for the test dataset
 predictions = predict(startModel, newdata = dataTestAll)
@@ -106,6 +119,8 @@ predictions = predict(startModel, newdata = dataTestAll)
 IDnum = 1461:2919
 MySubmission = data.frame(Id = IDnum, SalePrice = predictions)
 write.csv(MySubmission, "predictionsRandomForest.csv", row.names=FALSE)
+
+#write.csv(correlation, "correlationdata.CSV", row.names=FALSE)
 
 #mae = mean(abs(predictions - dataTrain$SalePrice))
 # Calculate the Root Mean Squared Error (RMSE)

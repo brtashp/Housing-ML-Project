@@ -6,7 +6,7 @@ library(dplyr)
 
 # functions created
 # Function to remove outliers based on z-scores within each level of each column
-remove_outliers <- function(df, variable, factor_variable, threshold = 3) {
+remove_outliers <- function(df, variable, factor_variable, threshold = 5) {
   df %>%
     group_by({{ factor_variable }}) %>%
     mutate(z_score = scale({{ variable }})) %>%
@@ -74,8 +74,24 @@ for (col_name in names(dataTrainCharNum)) {
 cleaned = remove_outliers(dataTrainCharNum, SalePrice, dataTrainCharNum$MSZoning)
 cleaned = remove_outliers(cleaned, SalePrice, cleaned$Street)
 cleaned = remove_outliers(cleaned, SalePrice, cleaned$LotShape)
-
-
+cleaned = remove_outliers(cleaned, SalePrice, cleaned$LandContour)
+cleaned = remove_outliers(cleaned, SalePrice, cleaned$Utilities)
+cleaned = remove_outliers(cleaned, SalePrice, cleaned$LotConfig)
+cleaned = remove_outliers(cleaned, SalePrice, cleaned$LandSlope)
+cleaned = remove_outliers(cleaned, SalePrice, cleaned$Neighborhood)
+cleaned = remove_outliers(cleaned, SalePrice, cleaned$Condition1)
+cleaned = remove_outliers(cleaned, SalePrice, cleaned$Condition2)
+cleaned = remove_outliers(cleaned, SalePrice, cleaned$BldgType)
+cleaned = remove_outliers(cleaned, SalePrice, cleaned$HouseStyle)
+cleaned = remove_outliers(cleaned, SalePrice, cleaned$RoofMatl)
+cleaned = remove_outliers(cleaned, SalePrice, cleaned$Exterior1st)
+cleaned = remove_outliers(cleaned, SalePrice, cleaned$Exterior2nd)
+cleaned = remove_outliers(cleaned, SalePrice, cleaned$MasVnrType)
+cleaned = remove_outliers(cleaned, SalePrice, cleaned$ExterQual)
+cleaned = remove_outliers(cleaned, SalePrice, cleaned$ExterCond)
+cleaned = remove_outliers(cleaned, SalePrice, cleaned$Foundation)
+cleaned = remove_outliers(cleaned, SalePrice, cleaned$BsmtQual)
+cleaned = remove_outliers(cleaned, SalePrice, cleaned$BsmtCond)
 
 
 dataTrainCharNum = data.frame(dataTrainCharNum, SalePrice = SalePrice1)
