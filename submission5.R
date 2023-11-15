@@ -5,6 +5,7 @@
 library(caTools)
 library(randomForest)
 library(dplyr)
+library(ggplot2)
 
 # loading data 
 dataTrain = read.csv("train.csv")
@@ -119,6 +120,12 @@ predictions = predict(startModel, newdata = dataTestAll)
 IDnum = 1461:2919
 MySubmission = data.frame(Id = IDnum, SalePrice = predictions)
 write.csv(MySubmission, "predictionsRandomForest.csv", row.names=FALSE)
+
+my_data = dataTrainAll[, c(1,2,3,4,5,6,7,8,9,75)]
+
+#install.packages("PerformanceAnalytics")
+library(PerformanceAnalytics)
+chart.Correlation(my_data, histogram=TRUE, pch=19)
 
 #write.csv(correlation, "correlationdata.CSV", row.names=FALSE)
 

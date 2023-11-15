@@ -1,0 +1,15 @@
+put top 10-20 features that are highly correlated to the sale price 
+
+plot the correlation chart.Correlation 
+	(need to have a reason for why things are being picked over others) 
+	shows if data is normal, linear, logistic ect
+
+remove more variables 
+
+PCA for outcomes (is outcome dependent or indenpendent of catagorial variables)
+
+helpful with understanding missing values: 
+https://www.analyticsvidhya.com/blog/2021/10/handling-missing-value/
+
+
+

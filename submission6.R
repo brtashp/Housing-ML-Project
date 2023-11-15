@@ -9,10 +9,37 @@ library(dplyr)
 # loading data 
 dataTrain = read.csv("train.csv")
 dataTest = read.csv("test.csv")
+
 # remove unnecessary columns 
 dataTrain$Id = NULL
 dataTest$Id = NULL
 SalePrice1 = dataTrain$SalePrice
+
+# remove unnecessary columns
+dataTrain$Id = NULL
+dataTest$Id = NULL
+
+# identify data we dont need before cleaning based on percentage of missing data
+# Calculate the total number of missing values for each column
+total <- colSums(is.na(dataTrain))
+# Calculate the percentage of missing values for each column
+percent <- (colSums(is.na(dataTrain)) / nrow(dataTrain)) * 100
+# Create a data frame to store the total and percentage of missing values
+missing_data <- data.frame(Total = total, Percent = percent)
+# Sort the data frame by the percentage of missing values in descending order
+missing_data <- missing_data[order(-missing_data$Percent), ]
+# Display the first 20 rows of the sorted data frame
+head(missing_data, 20)
+# remove more data we dont need
+dataTrain$PoolQC = NULL
+dataTest$PoolQC = NULL
+dataTrain$MiscFeature = NULL
+dataTest$MiscFeature = NULL
+dataTrain$Alley = NULL
+dataTest$Alley = NULL
+dataTrain$Fence = NULL
+dataTest$Fence = NULL
+
 
 # cleaning Train and test
 character_columns = sapply(dataTrain, is.character)
