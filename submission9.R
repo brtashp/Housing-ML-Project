@@ -10,12 +10,6 @@ library(ggplot2)
 library(PerformanceAnalytics)
 #install.packages("FactoMineR")
 library(FactoMineR)
-install.packages(c("stats", "cluster"))
-
-# Load the packages
-library(stats)
-library(cluster)
-
 
 
 # loading data 
@@ -117,36 +111,11 @@ plot(cumsum(prop_varex),xlab="principal component",
 postPCATrain = data.frame(SalePrice=dataTrainAll$SalePrice,PCA$x)
 postPCATrain = postPCATrain[,1:40]
 
+common_factors <- intersect(df1$Factor, df2$Factor)
 
-# pca part 2
-dataTrainAllnum <- dataTrainAll
-dataTrainAllnum$SalePrice = NULL
-
-# Step 3: Standardize the Data
-scaled_data <- scale(dataTrainAllnum)
-
-# Step 4: Apply PCA
-pca_result <- prcomp(scaled_data, center = TRUE, scale. = TRUE)
-
-# Step 5: Explore Results
-summary(pca_result)
-
-
-# Step 6: Choose the Number of Components
-# Decide on the number of principal components to keep based on the cumulative proportion of variance explained.
-# You might choose a threshold like 95% or 99%.
-
-# Step 7: Transform Data
-num_components_to_keep <- 40  # Replace with your chosen number of components
-reduced_data <- predict(pca_result, newdata = scaled_data)[, 1:num_components_to_keep]
-dataTrainAllnumSale = data.frame(SalePrice = dataTrainAll$SalePrice, reduced_data)
-
-# Step 8: Analyze Results
-# You can analyze and visualize the reduced data as needed.
-# For example, you might want to plot the first two principal components:
-ggplot(data = as.data.frame(reduced_data), aes(x = PC1, y = PC2)) +
-  geom_point() +
-  labs(title = "PCA: First Two Principal Components")
+# Subset dataframes based on common factors
+df1 <- df1[df1$Factor %in% common_factors, ]
+df2 <- df2[df2$Factor %in% common_factors, ]
 
 #summary(dataTestAll)
 
