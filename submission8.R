@@ -48,6 +48,7 @@ for (col_name in names(dataTrainChar)) {
                                   dataTestChar[[col_name]])
   dataTestChar[[col_name]] = as.numeric(dataTestChar[[col_name]])
 }
+
 # below works for train 
 for (col_name in names(dataTrainChar)) {
   # If the column is a factor, calculate the mean SalePrice for each unique value
@@ -76,6 +77,7 @@ dataTrainAll$SalePrice = dataTrain$SalePrice
 dataTrainAll[] <- lapply(dataTrainAll, function(x) {
   ifelse(is.na(x), mean(x, na.rm = TRUE), x)
 })
+
 #below might also work? 
 #dataTrainAll[] <- lapply(dataTrainAll, function(x) ifelse(is.na(x), mean(x, na.rm = TRUE), x))
 
@@ -103,8 +105,9 @@ mainFCTest = dataTestAll[, c("Neighborhood", "ExterQual", "Foundation",
                                "MasVnrArea", "TotalBsmtSF", "X1stFlrSF", "GrLivArea", "FullBath", "TotRmsAbvGrd",
                                "Fireplaces", "GarageYrBlt", "GarageYrBlt", "GarageArea")]
 
-mainFCTrain = dataTrainAll[, c(7,16,17,19,20,26,29,32,33,42,44,45,46,50,51,54,57,61,62,63,64,65,75)]
-mainFCTest = dataTestAll[, c(7,16,17,19,20,26,29,32,33,42,44,45,46,50,51,54,57,61,62,63,64,65)]
+mainFCTrain = dataTrainAll[, c(7,20,26,29,33,42,44,45,46,50,51,54,57,61,62,63,64,65,75)]
+mainFCTest = dataTestAll[, c(7,20,26,29,33,42,44,45,46,50,51,54,57,61,62,63,64,65,75)]
+mainFCTest = dataTestAll[, c(7,16,17,19,20,26,29,33,42,44,45,46,50,51,54,57,61,62,63,64,65)]
 
 # correlation matrix 
 #correlation = cor(dataTrainAll)
@@ -128,7 +131,9 @@ write.csv(MySubmission, "predictionsRandomForest.csv", row.names=FALSE)
 
 my_data = dataTrainAll[, c(70,71,72,73,74,75)]
 
-chart.Correlation(my_data, histogram=TRUE, pch=19)
+chart.Correlation(mainFCTrain, histogram=TRUE, pch=19)
+
+# i made a change
 
 #write.csv(correlation, "correlationdata.CSV", row.names=FALSE)
 
