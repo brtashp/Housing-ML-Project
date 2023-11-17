@@ -1,0 +1,52 @@
+more correlation notes 
+
+Charts created with PerformanceAnalytics package
+- The distribution of each variable is shown on the diagonal
+- On the bottom of the diagonal : the bivariate scatter plots with a fitted line are displayed
+- On the top of the diagonal : the value of the correlation plus the significance level as stars
+
+vars to pick because of high factor 
+- LotShape, 2, 0.041, 0 
+- LandContour, 3, 0.27, 3
+- LotConfig, 5, 0.16, 3
+- Neighborhood, 7, 0.7, 3
+- Condition1, 8, 0.17, 3
+- Condition2, 9, 0.094, 3
+- BldgType, 10, 0.18, 3
+- 11, 0.27, 3
+- 12, 0.24, 3
+- 13, 0.16, 3
+- 14, 0.37, 3
+- 15, 0.37, 3
+- 16, 0.43, 3
+- 17, 0.68, 3
+- 18, 0.14, 3
+- 19, 0.51, 3
+- 20, 0.64, 3
+- 21, 0.16, 3
+- 22, 0.35
+- 23, 0.35
+- 24, 0.092
+26, 0.43
+29, 0.66
+32, 0.43
+33, 0.5
+37, 0.37
+
+
+
+street
+- right skewed 
+- 0.041 correlation with SP
+
+lotshape 
+- bi modal distribution 
+- 0.27, high correlation with SP 
+- also highly correlated with LandContour variable 
+
+landcontour
+- normal dist 
+- 0.16, 3 stars and highly correlated 
+
+utilities
+- 

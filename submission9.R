@@ -8,6 +8,9 @@ library(dplyr)
 library(ggplot2)
 #install.packages("PerformanceAnalytics")
 library(PerformanceAnalytics)
+#install.packages("FactoMineR")
+library(FactoMineR)
+
 
 # loading data 
 dataTrain = read.csv("train.csv")
@@ -48,7 +51,6 @@ for (col_name in names(dataTrainChar)) {
                                   dataTestChar[[col_name]])
   dataTestChar[[col_name]] = as.numeric(dataTestChar[[col_name]])
 }
-
 # below works for train 
 for (col_name in names(dataTrainChar)) {
   # If the column is a factor, calculate the mean SalePrice for each unique value
@@ -69,6 +71,11 @@ dataTrainNum <- dataTrain[, missing_columns]
 # removes the sale price column
 dataTrainNum$SalePrice = NULL
 
+# below for cleaning test data
+# creates dataframe with only numeric/int values 
+missing_columns = setdiff(names(dataTest), names(dataTestChar))
+dataTestNum <- dataTest[, missing_columns]
+
 # combines everything into one dataframe for train data 
 dataTrainAll = cbind(dataTrainChar, dataTrainNum)
 dataTrainAll$SalePrice = dataTrain$SalePrice
@@ -78,14 +85,6 @@ dataTrainAll[] <- lapply(dataTrainAll, function(x) {
   ifelse(is.na(x), mean(x, na.rm = TRUE), x)
 })
 
-#below might also work? 
-#dataTrainAll[] <- lapply(dataTrainAll, function(x) ifelse(is.na(x), mean(x, na.rm = TRUE), x))
-
-# below for cleaning test data
-# creates dataframe with only numeric/int values 
-missing_columns = setdiff(names(dataTest), names(dataTestChar))
-dataTestNum <- dataTest[, missing_columns]
-
 # combines everything into one dataframe 
 dataTestAll = cbind(dataTestChar, dataTestNum)
 
@@ -93,21 +92,32 @@ dataTestAll = cbind(dataTestChar, dataTestNum)
 dataTestAll <- dataTestAll %>%
   mutate(across(everything(), ~ ifelse(is.na(.), mean(., na.rm = TRUE), .)))
 
+
+# applying PCA 
+PCATrain = dataTrainAll[, c(1:74)]
+
+PCA=prcomp(PCATrain,scale.=T)
+names(PCA)
+biplot(PCA,scale=0)
+
+stdev=PCA$sdev
+# difference 
+var=stdev^2
+prop_varex=var/sum(var)
+plot(cumsum(prop_varex),xlab="principal component",
+     ylab="cumulative proportion of varience explained", type="b")
+
+# based on PCA, remove last 24 columns and add sale price (first column)
+postPCATrain = data.frame(SalePrice=dataTrainAll$SalePrice,PCA$x)
+postPCATrain = postPCATrain[,1:40]
+
+common_factors <- intersect(df1$Factor, df2$Factor)
+
+# Subset dataframes based on common factors
+df1 <- df1[df1$Factor %in% common_factors, ]
+df2 <- df2[df2$Factor %in% common_factors, ]
+
 #summary(dataTestAll)
-
-mainFCTrain = dataTrainAll[, c("SalePrice", "Neighborhood", "ExterQual", "Foundation",
-"BsmtQual", "KitchenQual", "GarageFinish", "OverallQual", "YearBuilt", "YearRemodAdd",
-"MasVnrArea", "TotalBsmtSF", "X1stFlrSF", "GrLivArea", "FullBath", "TotRmsAbvGrd",
-"Fireplaces", "GarageYrBlt", "GarageYrBlt", "GarageArea")]
-
-mainFCTest = dataTestAll[, c("Neighborhood", "ExterQual", "Foundation",
-                               "BsmtQual", "KitchenQual", "GarageFinish", "OverallQual", "YearBuilt", "YearRemodAdd",
-                               "MasVnrArea", "TotalBsmtSF", "X1stFlrSF", "GrLivArea", "FullBath", "TotRmsAbvGrd",
-                               "Fireplaces", "GarageYrBlt", "GarageYrBlt", "GarageArea")]
-
-mainFCTrain = dataTrainAll[, c(7,20,26,29,33,42,44,45,46,50,51,54,57,61,62,63,64,65,75)]
-mainFCTest = dataTestAll[, c(7,20,26,29,33,42,44,45,46,50,51,54,57,61,62,63,64,65,75)]
-mainFCTest = dataTestAll[, c(7,16,17,19,20,26,29,33,42,44,45,46,50,51,54,57,61,62,63,64,65)]
 
 # correlation matrix 
 #correlation = cor(dataTrainAll)
@@ -119,20 +129,37 @@ mainFCTest = dataTestAll[, c(7,16,17,19,20,26,29,33,42,44,45,46,50,51,54,57,61,6
 #dataTrain = subset(dataTrainAll, split == TRUE)
 #dataTrain = subset(dataTrainAll, split == FALSE)
 
+highcorTrain = dataTrainAll[, c(7,17,19,20,29,33,42,44,45,50,51,54,57,61,64,65,75)]
+highcorTest = dataTestAll[, c(7,17,19,20,29,33,42,44,45,50,51,54,57,61,64,65)]
+
 # testing the accuracy (need to use the train data to get the accuracy) ###
-startModel = randomForest(SalePrice ~ ., data = mainFCTrain, ntree = 1000)
+startModel = randomForest(SalePrice ~ ., data = highcorTrain, ntree = 500)
 
 # Predict sale prices for the test dataset
-predictions = predict(startModel, newdata = mainFCTest)
+predictions = predict(startModel, newdata = highcorTest)
 
 IDnum = 1461:2919
 MySubmission = data.frame(Id = IDnum, SalePrice = predictions)
 write.csv(MySubmission, "predictionsRandomForest.csv", row.names=FALSE)
 
+# below for creating correlation matrixes 
+my_data = dataTrainAll[, c(1,2,3,4,5,6,7,8,9,75)]
+chart.Correlation(my_data, histogram=TRUE, pch=19)
+my_data = dataTrainAll[, c(10,11,12,13,14,15,16,17,18,19,75)]
+chart.Correlation(my_data, histogram=TRUE, pch=19)
+my_data = dataTrainAll[, c(20,21,22,23,24,25,26,27,28,29,75)]
+chart.Correlation(my_data, histogram=TRUE, pch=19)
+my_data = dataTrainAll[, c(30,31,32,33,34,35,36,37,38,39,75)]
+chart.Correlation(my_data, histogram=TRUE, pch=19)
+my_data = dataTrainAll[, c(40,41,42,43,44,45,46,47,48,49,75)]
+chart.Correlation(my_data, histogram=TRUE, pch=19)
+my_data = dataTrainAll[, c(50,51,52,53,54,55,56,57,58,59,75)]
+chart.Correlation(my_data, histogram=TRUE, pch=19)
+my_data = dataTrainAll[, c(60,61,62,63,64,65,66,67,68,69,75)]
+chart.Correlation(my_data, histogram=TRUE, pch=19)
 my_data = dataTrainAll[, c(70,71,72,73,74,75)]
 
-chart.Correlation(mainFCTrain, histogram=TRUE, pch=19)
-
+chart.Correlation(highcorTrain, histogram=TRUE, pch=19)
 
 #write.csv(correlation, "correlationdata.CSV", row.names=FALSE)
 
