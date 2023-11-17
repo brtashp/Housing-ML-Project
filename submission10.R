@@ -1,4 +1,4 @@
-# submission 5? 
+# submission 10 
 # rank is based on RMSE
 
 # load libraries 
@@ -10,9 +10,7 @@ library(ggplot2)
 library(PerformanceAnalytics)
 #install.packages("FactoMineR")
 library(FactoMineR)
-install.packages(c("stats", "cluster"))
-library(stats)
-library(cluster)
+
 
 # loading data 
 dataTrain = read.csv("train.csv")
@@ -31,7 +29,10 @@ dataTrain$Fence = NULL
 dataTest$Fence = NULL
 dataTrain$MSZoning = NULL
 dataTest$MSZoning = NULL
+dataTrain$FireplaceQu = NULL
+dataTest$FireplaceQu = NULL
 
+SalePrice1 = dataTrain$SalePrice
 SalePrice = dataTrain$SalePrice
 
 # cleaning Train and test
@@ -43,7 +44,7 @@ dataTestChar = dataTest[, character_columns]
 
 #below works for test
 for (col_name in names(dataTrainChar)) {
-  mean_sale_price = tapply(SalePrice, dataTrainChar[[col_name]], mean)
+  mean_sale_price = tapply(SalePrice1, dataTrainChar[[col_name]], mean)
   
   # Use a different variable name for rank
   rank_values = rank(mean_sale_price)
@@ -54,10 +55,11 @@ for (col_name in names(dataTrainChar)) {
                                   dataTestChar[[col_name]])
   dataTestChar[[col_name]] = as.numeric(dataTestChar[[col_name]])
 }
+
 # below works for train 
 for (col_name in names(dataTrainChar)) {
   # If the column is a factor, calculate the mean SalePrice for each unique value
-  mean_sale_price = tapply(SalePrice, dataTrainChar[[col_name]], mean)
+  mean_sale_price = tapply(SalePrice1, dataTrainChar[[col_name]], mean)
   #ordered = order(mean_sale_price)
   rank = rank(mean_sale_price)
     
@@ -96,12 +98,19 @@ dataTestAll <- dataTestAll %>%
   mutate(across(everything(), ~ ifelse(is.na(.), mean(., na.rm = TRUE), .)))
 
 
-
-
-
 # clustering methods
+# Perform k-means clustering with k=3 (you can choose another value)
+k <- 3
+set.seed(123)  # for reproducibility
+kmeans_result <- kmeans(dataTrainAll, centers = k)
 
+# View the cluster assignments
+cluster_assignments <- kmeans_result$cluster
+print(cluster_assignments)
 
+# View the cluster centers
+cluster_centers <- kmeans_result$centers
+print(cluster_centers)
 
 
 #summary(dataTestAll)
@@ -116,39 +125,19 @@ dataTestAll <- dataTestAll %>%
 #dataTrain = subset(dataTrainAll, split == TRUE)
 #dataTrain = subset(dataTrainAll, split == FALSE)
 
-highcorTrain = dataTrainAll[, c(7,17,19,20,29,33,42,44,45,50,51,54,57,61,64,65,75)]
-highcorTest = dataTestAll[, c(7,17,19,20,29,33,42,44,45,50,51,54,57,61,64,65)]
+#highcorTrain = dataTrainAll[, c(7,17,19,20,29,33,42,44,45,50,51,54,57,61,64,65,75)]
+#highcorTest = dataTestAll[, c(7,17,19,20,29,33,42,44,45,50,51,54,57,61,64,65)]
 
 # testing the accuracy (need to use the train data to get the accuracy) ###
-startModel = randomForest(SalePrice ~ ., data = highcorTrain, ntree = 500)
+startModel = randomForest(SalePrice ~ ., data = dataTrainAll, ntree = 500)
 
 # Predict sale prices for the test dataset
-predictions = predict(startModel, newdata = highcorTest)
+predictions = predict(startModel, newdata = dataTestAll)
 
 IDnum = 1461:2919
 MySubmission = data.frame(Id = IDnum, SalePrice = predictions)
 write.csv(MySubmission, "predictionsRandomForest.csv", row.names=FALSE)
 
-# below for creating correlation matrixes 
-my_data = dataTrainAll[, c(1,2,3,4,5,6,7,8,9,75)]
-chart.Correlation(my_data, histogram=TRUE, pch=19)
-my_data = dataTrainAll[, c(10,11,12,13,14,15,16,17,18,19,75)]
-chart.Correlation(my_data, histogram=TRUE, pch=19)
-my_data = dataTrainAll[, c(20,21,22,23,24,25,26,27,28,29,75)]
-chart.Correlation(my_data, histogram=TRUE, pch=19)
-my_data = dataTrainAll[, c(30,31,32,33,34,35,36,37,38,39,75)]
-chart.Correlation(my_data, histogram=TRUE, pch=19)
-my_data = dataTrainAll[, c(40,41,42,43,44,45,46,47,48,49,75)]
-chart.Correlation(my_data, histogram=TRUE, pch=19)
-my_data = dataTrainAll[, c(50,51,52,53,54,55,56,57,58,59,75)]
-chart.Correlation(my_data, histogram=TRUE, pch=19)
-my_data = dataTrainAll[, c(60,61,62,63,64,65,66,67,68,69,75)]
-chart.Correlation(my_data, histogram=TRUE, pch=19)
-my_data = dataTrainAll[, c(70,71,72,73,74,75)]
-
-chart.Correlation(highcorTrain, histogram=TRUE, pch=19)
-
-#write.csv(correlation, "correlationdata.CSV", row.names=FALSE)
 
 #mae = mean(abs(predictions - dataTrain$SalePrice))
 # Calculate the Root Mean Squared Error (RMSE)
