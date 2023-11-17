@@ -11,16 +11,13 @@ library(PerformanceAnalytics)
 #install.packages("FactoMineR")
 library(FactoMineR)
 install.packages(c("stats", "cluster"))
-
-# Load the packages
 library(stats)
 library(cluster)
-
-
 
 # loading data 
 dataTrain = read.csv("train.csv")
 dataTest = read.csv("test.csv")
+
 # remove unnecessary columns 
 dataTrain$Id = NULL
 dataTest$Id = NULL
@@ -99,54 +96,13 @@ dataTestAll <- dataTestAll %>%
   mutate(across(everything(), ~ ifelse(is.na(.), mean(., na.rm = TRUE), .)))
 
 
-# applying PCA 
-PCATrain = dataTrainAll[, c(1:74)]
-
-PCA=prcomp(PCATrain,scale.=T)
-names(PCA)
-biplot(PCA,scale=0)
-
-stdev=PCA$sdev
-# difference 
-var=stdev^2
-prop_varex=var/sum(var)
-plot(cumsum(prop_varex),xlab="principal component",
-     ylab="cumulative proportion of varience explained", type="b")
-
-# based on PCA, remove last 24 columns and add sale price (first column)
-postPCATrain = data.frame(SalePrice=dataTrainAll$SalePrice,PCA$x)
-postPCATrain = postPCATrain[,1:40]
 
 
-# pca part 2
-dataTrainAllnum <- dataTrainAll
-dataTrainAllnum$SalePrice = NULL
 
-# Step 3: Standardize the Data
-scaled_data <- scale(dataTrainAllnum)
-
-# Step 4: Apply PCA
-pca_result <- prcomp(scaled_data, center = TRUE, scale. = TRUE)
-
-# Step 5: Explore Results
-summary(pca_result)
+# clustering methods
 
 
-# Step 6: Choose the Number of Components
-# Decide on the number of principal components to keep based on the cumulative proportion of variance explained.
-# You might choose a threshold like 95% or 99%.
 
-# Step 7: Transform Data
-num_components_to_keep <- 40  # Replace with your chosen number of components
-reduced_data <- predict(pca_result, newdata = scaled_data)[, 1:num_components_to_keep]
-dataTrainAllnumSale = data.frame(SalePrice = dataTrainAll$SalePrice, reduced_data)
-
-# Step 8: Analyze Results
-# You can analyze and visualize the reduced data as needed.
-# For example, you might want to plot the first two principal components:
-ggplot(data = as.data.frame(reduced_data), aes(x = PC1, y = PC2)) +
-  geom_point() +
-  labs(title = "PCA: First Two Principal Components")
 
 #summary(dataTestAll)
 
