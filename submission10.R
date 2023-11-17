@@ -11,10 +11,20 @@ library(PerformanceAnalytics)
 #install.packages("FactoMineR")
 library(FactoMineR)
 
-
 # loading data 
 dataTrain = read.csv("train.csv")
 dataTest = read.csv("test.csv")
+
+# calculate percentage of NA values
+total <- colSums(is.na(dataTrain))
+# Calculate the percentage of missing values for each column
+percent <- (colSums(is.na(dataTrain)) / nrow(dataTrain)) * 100
+# Create a data frame to store the total and percentage of missing values
+missing_data <- data.frame(Total = total, Percent = percent)
+# Sort the data frame by the percentage of missing values in descending order
+missing_data <- missing_data[order(-missing_data$Percent), ]
+# Display the first 20 rows of the sorted data frame
+head(missing_data, 20)
 
 # remove unnecessary columns 
 dataTrain$Id = NULL
@@ -31,6 +41,34 @@ dataTrain$MSZoning = NULL
 dataTest$MSZoning = NULL
 dataTrain$FireplaceQu = NULL
 dataTest$FireplaceQu = NULL
+
+# this column is based on the MiscFeature, which was removed since it had over a 
+# 90% NA values included. So using this feature is not going to add anything 
+# since the column it is based on was also removed 
+dataTrain$MiscVal = NULL
+dataTest$MiscVal = NULL
+
+# replacing NA values to true values
+dataTrain$GarageQual[is.na(dataTrain$GarageQual)] <- "NG"
+dataTrain$GarageCond[is.na(dataTrain$GarageCond)] <- "NG"
+dataTrain$GarageFinish[is.na(dataTrain$GarageFinish)] <- "NG"
+dataTrain$GarageYrBlt[is.na(dataTrain$GarageYrBlt)] <- "NG"
+dataTrain$GarageType[is.na(dataTrain$GarageType)] <- "NG"
+dataTrain$BsmtFinType1[is.na(dataTrain$BsmtFinType1)] <- "NB"
+dataTrain$BsmtCond[is.na(dataTrain$BsmtCond)] <- "NB"
+dataTrain$BsmtQual[is.na(dataTrain$BsmtQual)] <- "NB"
+dataTrain$BsmtFinType2[is.na(dataTrain$BsmtFinType2)] <- "NB"
+dataTrain$BsmtExposure[is.na(dataTrain$BsmtExposure)] <- "NB"
+
+# changing numerical/continuous values to better represent the data
+# change year built to age 
+dataTrain <- dataTrain %>%
+  mutate(Age = as.numeric(format(Sys.Date(), "%Y")) - YearBuilt)
+# change month and year to categorical for what year it was sold 
+dataTrain <- dataTrain %>%
+  mutate(YrSold = as.factor(YrSold),
+         MoSold = as.factor(MoSold),
+         Sale_category = paste(YrSold, MoSold, sep = "-"))
 
 SalePrice1 = dataTrain$SalePrice
 SalePrice = dataTrain$SalePrice
@@ -129,7 +167,7 @@ print(cluster_centers)
 #highcorTest = dataTestAll[, c(7,17,19,20,29,33,42,44,45,50,51,54,57,61,64,65)]
 
 # testing the accuracy (need to use the train data to get the accuracy) ###
-startModel = randomForest(SalePrice ~ ., data = dataTrainAll, ntree = 500)
+startModel = randomForest(SalePrice ~ ., data = dataTrainAll, ntree = 1000)
 
 # Predict sale prices for the test dataset
 predictions = predict(startModel, newdata = dataTestAll)
