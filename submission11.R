@@ -15,17 +15,6 @@ library(FactoMineR)
 dataTrain = read.csv("train.csv")
 dataTest = read.csv("test.csv")
 
-# calculate percentage of NA values
-total <- colSums(is.na(dataTrain))
-# Calculate the percentage of missing values for each column
-percent <- (colSums(is.na(dataTrain)) / nrow(dataTrain)) * 100
-# Create a data frame to store the total and percentage of missing values
-missing_data <- data.frame(Total = total, Percent = percent)
-# Sort the data frame by the percentage of missing values in descending order
-missing_data <- missing_data[order(-missing_data$Percent), ]
-# Display the first 20 rows of the sorted data frame
-head(missing_data, 20)
-
 # remove unnecessary columns 
 dataTrain$Id = NULL
 dataTest$Id = NULL
@@ -88,6 +77,11 @@ dataTest <- dataTest %>%
   mutate(YrSold = as.factor(YrSold),
          MoSold = as.factor(MoSold),
          Sale_category = paste(YrSold, MoSold, sep = "-"))
+dataTrain$YrSold = NULL
+dataTest$YrSold = NULL
+dataTrain$MoSold = NULL
+dataTest$MoSold = NULL
+
 
 SalePrice1 <- log(dataTrain$SalePrice)
 SalePrice <- log(dataTrain$SalePrice)
@@ -100,7 +94,7 @@ dataTrain$SalePrice = SalePrice1
 character_columns = sapply(dataTrain, is.character)
 dataTrainChar = dataTrain[, character_columns]
 
-character_columns = sapply(dataTrain, is.character)
+character_columns = sapply(dataTest, is.character)
 dataTestChar = dataTest[, character_columns]
 
 #below works for test
@@ -173,32 +167,16 @@ print(cluster_assignments)
 cluster_centers <- kmeans_result$centers
 print(cluster_centers)
 
-
-#summary(dataTestAll)
-
-# correlation matrix 
-#correlation = cor(dataTrainAll)
-#print(correlation)
-
-# split data into train and test (to test model)
-#set.seed(88)
-#split = sample.split(dataTrainAll$SalePrice, SplitRatio = 0.75)
-#dataTrain = subset(dataTrainAll, split == TRUE)
-#dataTrain = subset(dataTrainAll, split == FALSE)
-
-#highcorTrain = dataTrainAll[, c(7,17,19,20,29,33,42,44,45,50,51,54,57,61,64,65,75)]
-#highcorTest = dataTestAll[, c(7,17,19,20,29,33,42,44,45,50,51,54,57,61,64,65)]
-
 # testing the accuracy (need to use the train data to get the accuracy) ###
 startModel = randomForest(SalePrice ~ ., data = dataTrainAll, ntree = 1000)
 
 # Predict sale prices for the test dataset
-predictions = predict(startModel, newdata = dataTestAll)
+predictions1 = predict(startModel, newdata = dataTestAll)
+predictions = exp(predictions1)
 
 IDnum = 1461:2919
 MySubmission = data.frame(Id = IDnum, SalePrice = predictions)
 write.csv(MySubmission, "predictionsRandomForest.csv", row.names=FALSE)
-
 
 #mae = mean(abs(predictions - dataTrain$SalePrice))
 # Calculate the Root Mean Squared Error (RMSE)

@@ -1,0 +1,57 @@
+practice like your presenting to a company
+focusing on water infrastructure 
+
+Briefly explain the kotter step 
+
+Importance of the kotter step
+-  car on the side of road example
+
+Main points: 
+- Consolidating gains 
+	use of KPIs 
+	employee feedback
+- removing what isnt working
+	kaizen methodologies 
+- keep it fresh, produce more ideas, external sources 
+	see slide 24 on tetratechs smart water future 
+	ask kaylie about it 
+- goal setting 
+	(some of tetratechs specific goals below) 
+	Promote & incubate 
+	Pursue M&A (mergers and acquisitions) 
+	Develop stategic Partnerships and alliances
+- challenges 
+- how to ensure success
+
+
+So for our 7th step, we want to make sure that the momentum we have created from our first 
+6 steps continue and can be further improved. 
+One way is by first employing the mindset of continuous improvement. Since our tech change goal 
+is to implement IoT technologies into our water plant customers, we first need to ensure there 
+is a focus on continuous improvement of those IoT devices. The continuous improvement of these 
+sensors can be measured through key performance indicators such as ensuring the water quality 
+matches the true water quality of the water plant, or that the time at which the IoT sensor 
+detects and sends a report to our cloud server, is in fact the true time. Using KPI's will 
+also be very beneficial to allowing for continous improvement since it can also be used with 
+reviewing how a system is running over time. 
+We will need to hold weekly meetings with employees to ensure that the addition of IoT is functioning and 
+working properly, which these improvements can be based on KPIs and employee feedback. 
+Meetings will also allow for employees who may not understand how IoT is beneficial to TetraTech 
+to learn where the benefits are being used. 
+These meetings can also allow for see where the IoT tech change is not benefitting TetraTech. 
+
+Another approach for this step that tetratech plans on using is to remove any processes that are 
+not showing improvement with using IoT and providing quality results to tetratechs customers. 
+Still within our continuous improvement methods, we also plan to utilize kaizen methodologies, 
+which at its core focuses on continuous improvement, and aims to reduce waste whether that be physical
+processes or time management waste. This could be identifying a flaw with using Amazon web services 
+as a cloud based storage system over Azure cloud based systems. 
+
+our second approach to this step is finding ways to continue the tech change and allow for more change
+to happen. This can be through the 
+
+ketos = company that specializes in iot water treatment facilities and integration of tech 
+dewy software = data aquisition system
+
+
+

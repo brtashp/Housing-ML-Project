@@ -2,6 +2,7 @@
 
 #libraries
 library(ggplot2)
+library(PerformanceAnalytics)
 
 # lets do the data exploration 
 dataTrain = read.csv("train.csv")
@@ -14,8 +15,6 @@ ggplot(data = data.frame(value = data), aes(x = value)) +
   geom_histogram(fill = "lightblue", color = "black", bins = 30) +
   labs(title = "Normalized SalePrice Distribution", x = "Price", y = "Frequency") +
   scale_x_continuous(labels = scales::comma_format(scale = 1e-3, suffix = "K"))  
-  # Format x-axis labels as "K"
-
 
 # Create a QQ plot with a linear line
 qqnorm_data <- qqnorm(data)
@@ -28,3 +27,15 @@ ggplot(data = data.frame(value = data), aes(sample = value)) +
   scale_y_continuous(labels = scales::comma_format(scale = 1e-3, suffix = "K"),  # Format y-axis labels as "K"
                      breaks = scales::pretty_breaks(n = 10)) +  # Adjust breaks for better readability
   geom_abline(intercept = mean(data), slope = sd(data), color = "blue", linetype = "solid", size = 1.5)
+
+# correlation graphs
+
+highcorTrain = dataTrainAll[, c(7,17,19,20,29,33,42,44,45,50,51,54,57,61,64,65,73)]
+chart.Correlation(highcorTrain, histogram=TRUE, pch=19)
+
+
+# heat maps
+# Get some colors
+# Assuming your_data is your original dataset
+col<- colorRampPalette(c("blue", "white", "red"))(20)
+heatmap(x = highcorTrain, col = col, symm = FALSE)
