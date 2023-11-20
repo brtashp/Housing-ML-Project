@@ -54,17 +54,17 @@ New_startDataTest$GarageArea = ifelse(is.na(New_startDataTest$GarageArea),
                                              na.rm = TRUE),
                                       New_startDataTest$GarageArea)
 
-# will most likely need to choose different variables 
-startModel = randomForest(SalePrice~., data=startDataTrain, ntree=500)
-predictionStart = predict(startModel, newdata = New_startDataTest)
-accuracy = mean(predictionStart == New_startDataTest$SalePrice)
-
 # Train the Random Forest model
 startModel <- randomForest(SalePrice ~ ., data = startDataTrain, ntree = 500)
 # Predict sale prices for the test dataset
 predictionStart <- predict(startModel, newdata = New_startDataTest)
 
-# results 
+# to submit to kaggle
+IDnum = 1461:2919
+MySubmission = data.frame(Id = IDnum, SalePrice = predictionStart)
+write.csv(MySubmission, "submission1.csv", row.names=FALSE)
+
+# results ######################################################################
 
 # split train data into own train and test to test model 
 # split data into train and test (to test model)
@@ -72,31 +72,34 @@ set.seed(88)
 split = sample.split(startDataTrain$SalePrice, SplitRatio = 0.75)
 resultsdataTrain = subset(startDataTrain, split == TRUE)
 resultsdataTest = subset(startDataTrain, split == FALSE)
+resultsdataTest$SalePrice = NULL
+
+# rerun model using new test and train data
+startModelTest = randomForest(SalePrice ~ ., data = resultsdataTrain, ntree = 500)
+predictionTest = predict(startModelTest, newdata = resultsdataTest)
 
 # mae results 
-mae = mean(abs(resultsdataTrain$SalePrice - predictionStart))
-
+mae = mean(abs(resultsdataTrain$SalePrice - predictionTest))
 # mse results
 # Assuming y_true and y_pred are your actual and predicted values
-mse <- mean((resultsdataTrain$SalePrice - predictionStart)^2)
-
+mse <- mean((resultsdataTrain$SalePrice - predictionTest)^2)
 # Calculate the Root Mean Squared Error (RMSE)
-rmse = sqrt(mean((resultsdataTrain$SalePrice - predictionStart)^2))
-
+rmse = sqrt(mean((resultsdataTrain$SalePrice - predictionTest)^2))
 # mape results
-mape <- mean(abs((resultsdataTrain$SalePrice - predictionStart) / resultsdataTrain$SalePrice)) * 100
+mape <- mean(abs((resultsdataTrain$SalePrice - predictionTest) / resultsdataTrain$SalePrice)) * 100
+# Define a threshold for acceptable error
+threshold <- 10000
+# Calculate accuracy as the percentage of predictions within the threshold
+accuracy <- mean(abs(resultsdataTrain$SalePrice - predictionTest) < threshold)
 
 # Print results
 cat("Mean Absolute Error (MAE): ", mae, "\n")
 cat("Mean Squared Error (MSE): ", mse, "\n")
 cat("Root Mean Squared Error (RMSE): ", rmse, "\n")
 cat("Mean Absolute Percentage Error (MAPE): ", mape, "\n")
-
-# Define a threshold for acceptable error
-threshold <- 1000
-
-# Calculate accuracy as the percentage of predictions within the threshold
-accuracy <- mean(abs(resultsdataTrain$SalePrice - predictionStart) < threshold)
-
-# Print accuracy
 cat("Accuracy within $", threshold, ": ", accuracy * 100, "%\n")
+
+# charts/graphs 
+library(pROC)
+roc_curve = roc(resultsdataTrain$SalePrice, predictionStart)
+plot(roc_curve, main = "ROC Curve", col = "blue")
