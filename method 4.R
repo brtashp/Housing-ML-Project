@@ -116,25 +116,30 @@ set.seed(88)
 split = sample.split(dataTrainAll$SalePrice, SplitRatio = 0.75)
 resultsdataTrain = subset(dataTrainAll, split == TRUE)
 resultsdataTest = subset(dataTrainAll, split == FALSE)
+actaulSalePrice = resultsdataTest$SalePrice
+#actaulSalePrice = exp(actaulSalePrice)
 resultsdataTest$SalePrice = NULL
 
 # rerun model using new test and train data
 startModelTest = randomForest(SalePrice ~ ., data = resultsdataTrain, ntree = 500)
+#startModel <- lm(resultsdataTrain$SalePrice ~ ., data = resultsdataTrain)
 predictionTest = predict(startModelTest, newdata = resultsdataTest)
+predictionTest = exp(predictionTest)
+actaulSalePrice = exp(actaulSalePrice)
 
 # mae results 
-mae = mean(abs(resultsdataTrain$SalePrice - predictionTest))
+mae = mean(abs(actaulSalePrice - predictionTest))
 # mse results
 # Assuming y_true and y_pred are your actual and predicted values
-mse = mean((resultsdataTrain$SalePrice - predictionTest)^2)
+mse = mean((actaulSalePrice - predictionTest)^2)
 # Calculate the Root Mean Squared Error (RMSE)
-rmse = sqrt(mean((resultsdataTrain$SalePrice - predictionTest)^2))
+rmse = sqrt(mean((actaulSalePrice - predictionTest)^2))
 # mape results
-mape = mean(abs((resultsdataTrain$SalePrice - predictionTest) / resultsdataTrain$SalePrice)) * 100
+mape = mean(abs((actaulSalePrice - predictionTest) / actaulSalePrice)) * 100
 # Define a threshold for acceptable error
 threshold = 10000
 # Calculate accuracy as the percentage of predictions within the threshold
-accuracy = mean(abs(resultsdataTrain$SalePrice - predictionTest) < threshold)
+accuracy = mean(abs(actaulSalePrice - predictionTest) < threshold)
 
 # Print results
 cat("Mean Absolute Error (MAE): ", mae, "\n")

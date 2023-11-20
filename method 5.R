@@ -11,6 +11,7 @@ library(ggplot2)
 #install.packages("PerformanceAnalytics")
 library(PerformanceAnalytics)
 library(stats)
+library(caret)
 
 # loading data 
 dataTrain = read.csv("train.csv")
@@ -112,18 +113,7 @@ pca_model <- prcomp(dataTrainAll, scale. = TRUE)
 train_data_pca <- predict(pca_model, dataTrainAll)
 # Transform test_data using the same PCA model
 test_data_pca <- predict(pca_model, dataTestAll)
-dataTrainAll$SalePrice = dataTrain$SalePrice
 
-# multimodal data
-# use factoring to separate into separate columns
-#dataTrainAll$ExterQual = as.factor()
-
-#any(is.infinite(dataTrainAll$TotalBsmtSF))
-
-# Check for NaN values
-any(is.nan(dataTrainAll))
-
-# testing the accuracy (need to use the train data to get the accuracy) ###
 dataframe_datatrain <- as.data.frame(train_data_pca)
 dataframe_datatest <- as.data.frame(test_data_pca)
 startModel <- lm(SalePrice ~ ., data = dataframe_datatrain)
@@ -136,3 +126,53 @@ predictions = exp(predictions1)
 IDnum = 1461:2919
 MySubmission = data.frame(Id = IDnum, SalePrice = predictions)
 write.csv(MySubmission, "predictionslinearRegression.csv", row.names=FALSE)
+
+# results of the model #########################################################
+
+# split train data into own train and test to test model 
+# split data into train and test (to test model)
+
+# Set seed for reproducibility
+set.seed(88)
+dataframe_datatrain$SalePrice = SalePrice
+num_samples <- nrow(dataframe_datatrain)
+splitIndex <- sample(1:num_samples, size = 0.75 * num_samples)
+# Split the data based on the index
+resultsdataTrain <- dataframe_datatrain[splitIndex, ]
+resultsdataTrain <- as.data.frame(resultsdataTrain)
+resultsdataTest <- dataframe_datatrain[-splitIndex, ]
+resultsdataTest <- as.data.frame(resultsdataTest)
+actaulSalePrice = resultsdataTest$SalePrice
+resultsdataTest$SalePrice = NULL
+
+# rerun model using new test and train data
+#resultsdataTrain$SalePrice = exp(resultsdataTrain$SalePrice)
+startModel <- lm(resultsdataTrain$SalePrice ~ ., data = resultsdataTrain)
+predictions1 = predict(startModel, newdata = resultsdataTest)
+predictionTest = exp(predictions1)
+actaulSalePrice = exp(actaulSalePrice)
+
+# mae results 
+mae = mean(abs(actaulSalePrice - predictionTest))
+# mse results
+# Assuming y_true and y_pred are your actual and predicted values
+mse = mean((actaulSalePrice - predictionTest)^2)
+# Calculate the Root Mean Squared Error (RMSE)
+rmse = sqrt(mean((actaulSalePrice - predictionTest)^2))
+# mape results
+mape = mean(abs((actaulSalePrice - predictionTest) / actaulSalePrice)) * 100
+# Define a threshold for acceptable error
+threshold = 10000
+# Calculate accuracy as the percentage of predictions within the threshold
+accuracy = mean(abs(actaulSalePrice - predictionTest) < threshold)
+# and y_true and y_pred are your actual and predicted values
+adj_r_squared = 1 - (1 - summary(startModel)$r.squared) * (length(actaulSalePrice) - 1) / 
+  (length(actaulSalePrice) - length(startModel$coefficients) - 1)
+
+# Print results
+cat("Mean Absolute Error (MAE): ", mae, "\n")
+cat("Mean Squared Error (MSE): ", mse, "\n")
+cat("Root Mean Squared Error (RMSE): ", rmse, "\n")
+cat("Mean Absolute Percentage Error (MAPE): ", mape, "\n")
+cat("Accuracy within $", threshold, ": ", accuracy * 100, "%\n")
+cat("Adjusted R^2: ", adj_r_squared, "\n")
