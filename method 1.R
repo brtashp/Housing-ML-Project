@@ -42,7 +42,7 @@ boxplot(startDataTest)
 # startDataTrain)
 # below replaces the NAs with the median 
 
-New_startDataTest = startDataTest
+#New_startDataTest = startDataTest
 
 New_startDataTest$GarageCars = ifelse(is.na(New_startDataTest$GarageCars), 
                                       median(New_startDataTest$GarageCars,
@@ -86,7 +86,8 @@ mse <- mean((resultsdataTrain$SalePrice - predictionTest)^2)
 # Calculate the Root Mean Squared Error (RMSE)
 rmse = sqrt(mean((resultsdataTrain$SalePrice - predictionTest)^2))
 # mape results
-mape <- mean(abs((resultsdataTrain$SalePrice - predictionTest) / resultsdataTrain$SalePrice)) * 100
+mape <- mean(abs((resultsdataTrain$SalePrice - predictionTest) / 
+                   resultsdataTrain$SalePrice)) * 100
 # Define a threshold for acceptable error
 threshold <- 10000
 # Calculate accuracy as the percentage of predictions within the threshold

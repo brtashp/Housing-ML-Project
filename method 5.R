@@ -108,11 +108,28 @@ dataTrainAll$GrLivArea = log(dataTrain$GrLivArea)
 dataTestAll$GrLivArea = log(dataTest$GrLivArea)
 
 # using PCA methods 
+# highest correlated values
 pca_model <- prcomp(dataTrainAll, scale. = TRUE)
 # Transform train_data using the PCA model
-train_data_pca <- predict(pca_model, dataTrainAll)
+#train_data_pca <- predict(pca_model, dataTrainAll)
 # Transform test_data using the same PCA model
-test_data_pca <- predict(pca_model, dataTestAll)
+#test_data_pca <- predict(pca_model, dataTestAll)
+
+# dont forget data reduction (see below)
+# stats
+stdev = pca_model$sdev
+var = stdev^2
+prop_varex = var/sum(var)
+
+# automated stats 
+cumulative_explained_variance = cumsum(pca_model$sdev^2 / sum(pca_model$sdev^2))
+n_components <- which(cumulative_explained_variance >= 0.95)[1]
+pca_model2 <- prcomp(dataTrainAll, scale. = TRUE, rank = n_components)
+#plot(cumsum(prop_varex), type="b")
+train_data_pca <- predict(pca_model2, dataTrainAll)
+test_data_pca <- predict(pca_model2, dataTestAll)
+
+#biplot(pca_model, scale = 0)
 
 dataframe_datatrain <- as.data.frame(train_data_pca)
 dataframe_datatest <- as.data.frame(test_data_pca)
@@ -134,23 +151,34 @@ write.csv(MySubmission, "predictionslinearRegression.csv", row.names=FALSE)
 
 # Set seed for reproducibility
 set.seed(88)
-dataframe_datatrain$SalePrice = SalePrice
-num_samples <- nrow(dataframe_datatrain)
+dataTrainAll$SalePrice = SalePrice
+num_samples <- nrow(dataTrainAll)
 splitIndex <- sample(1:num_samples, size = 0.75 * num_samples)
 # Split the data based on the index
-resultsdataTrain <- dataframe_datatrain[splitIndex, ]
+resultsdataTrain <- dataTrainAll[splitIndex, ]
 resultsdataTrain <- as.data.frame(resultsdataTrain)
-resultsdataTest <- dataframe_datatrain[-splitIndex, ]
+resultsdataTest <- dataTrainAll[-splitIndex, ]
 resultsdataTest <- as.data.frame(resultsdataTest)
 actaulSalePrice = resultsdataTest$SalePrice
+actualTrainSalePrice = resultsdataTrain$SalePrice
 resultsdataTest$SalePrice = NULL
+resultsdataTrain$SalePrice = NULL
 
 # rerun model using new test and train data
-#resultsdataTrain$SalePrice = exp(resultsdataTrain$SalePrice)
-startModel <- lm(resultsdataTrain$SalePrice ~ ., data = resultsdataTrain)
+pca_model <- prcomp(resultsdataTrain, scale. = TRUE)
+cumulative_explained_variance = cumsum(pca_model$sdev^2 / sum(pca_model$sdev^2))
+n_components = which(cumulative_explained_variance >= 0.95)[1]
+pca_model3 = prcomp(resultsdataTrain, scale. = TRUE, rank = n_components)
+
+resultsdataTrain$SalePrice = NULL
+train_data_pca <- predict(pca_model3, resultsdataTrain)
+test_data_pca <- predict(pca_model3, resultsdataTest)
+
+startModel = lm(actualTrainSalePrice ~ ., data = resultsdataTrain)
 predictions1 = predict(startModel, newdata = resultsdataTest)
 predictionTest = exp(predictions1)
 actaulSalePrice = exp(actaulSalePrice)
+
 
 # mae results 
 mae = mean(abs(actaulSalePrice - predictionTest))
@@ -169,6 +197,13 @@ accuracy = mean(abs(actaulSalePrice - predictionTest) < threshold)
 adj_r_squared = 1 - (1 - summary(startModel)$r.squared) * (length(actaulSalePrice) - 1) / 
   (length(actaulSalePrice) - length(startModel$coefficients) - 1)
 
+eigenvalues <- pca_model3$sdev^2
+plot(1:length(eigenvalues), eigenvalues, type = "b", pch = 19, 
+     main = "Scree Plot", xlab = "Principal Component", ylab = "Eigenvalue")
+grid()
+
+axis(1, at = 1:length(eigenvalues), labels = paste("PC", 1:length(eigenvalues)))
+
 # Print results
 cat("Mean Absolute Error (MAE): ", mae, "\n")
 cat("Mean Squared Error (MSE): ", mse, "\n")
@@ -176,3 +211,9 @@ cat("Root Mean Squared Error (RMSE): ", rmse, "\n")
 cat("Mean Absolute Percentage Error (MAPE): ", mape, "\n")
 cat("Accuracy within $", threshold, ": ", accuracy * 100, "%\n")
 cat("Adjusted R^2: ", adj_r_squared, "\n")
+
+# finding most significant features (p < 0.05)
+# Extract coefficients and their significance levels
+coefficients_summary = summary(startModel)$coefficients
+significant_coefficients = coefficients_summary[coefficients_summary[, "Pr(>|t|)"] < 0.05, c("Estimate", "Pr(>|t|)")]
+print(significant_coefficients)

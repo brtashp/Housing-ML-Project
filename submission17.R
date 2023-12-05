@@ -1,5 +1,6 @@
-# method 4
-# normalizing data, revaluing some features, 
+# submission 14, 0.13712 
+# rank is based on RMSE
+# trying to normalize the highest correlated values
 
 # load libraries 
 library(caTools)
@@ -8,7 +9,7 @@ library(dplyr)
 library(ggplot2)
 #install.packages("PerformanceAnalytics")
 library(PerformanceAnalytics)
-library(caret)
+library(stats)
 
 # loading data 
 dataTrain = read.csv("train.csv")
@@ -29,6 +30,7 @@ dataTest$MSZoning = NULL
 
 #SalePrice = dataTrain$SalePrice
 
+# log transforming SalePrice since it is not normalized 
 SalePrice1 <- log(dataTrain$SalePrice)
 SalePrice <- log(dataTrain$SalePrice)
 dataTrain$SalePrice = SalePrice1
@@ -49,8 +51,8 @@ for (col_name in names(dataTrainChar)) {
   
   # Rename the values in dataTestChar based on rank
   dataTestChar[[col_name]] <- ifelse(!is.na(match(dataTestChar[[col_name]], names(mean_sale_price))), 
-                                     rank_values[match(dataTestChar[[col_name]], names(mean_sale_price))], 
-                                     dataTestChar[[col_name]])
+                                  rank_values[match(dataTestChar[[col_name]], names(mean_sale_price))], 
+                                  dataTestChar[[col_name]])
   dataTestChar[[col_name]] = as.numeric(dataTestChar[[col_name]])
 }
 # below works for train 
@@ -59,7 +61,7 @@ for (col_name in names(dataTrainChar)) {
   mean_sale_price = tapply(SalePrice, dataTrainChar[[col_name]], mean)
   #ordered = order(mean_sale_price)
   rank = rank(mean_sale_price)
-  
+    
   # Add the results to the result data frame
   dataTrainChar[[col_name]] <- ifelse(!is.na(match(dataTrainChar[[col_name]], names(rank))), 
                                       rank[match(dataTrainChar[[col_name]], names(rank))], 
@@ -80,7 +82,7 @@ dataTestNum <- dataTest[, missing_columns]
 
 # combines everything into one dataframe for train data 
 dataTrainAll = cbind(dataTrainChar, dataTrainNum)
-dataTrainAll$SalePrice = dataTrain$SalePrice
+#dataTrainAll$SalePrice = dataTrain$SalePrice
 
 # corrects NAs for train data
 dataTrainAll[] <- lapply(dataTrainAll, function(x) {
@@ -94,70 +96,58 @@ dataTestAll = cbind(dataTestChar, dataTestNum)
 dataTestAll <- dataTestAll %>%
   mutate(across(everything(), ~ ifelse(is.na(.), mean(., na.rm = TRUE), .)))
 
-highcorTrain = dataTrainAll[, c(7,17,19,20,29,33,42,44,45,50,51,54,57,61,64,65,75)]
-highcorTest = dataTestAll[, c(7,17,19,20,29,33,42,44,45,50,51,54,57,61,64,65)]
+# mutate some of the data based on histogram shapes
+# left/right skewed data
+#dataTrainAll$TotalBsmtSF = log(dataTrain$TotalBsmtSF) # causes infinite values
+#dataTestAll$TotalBsmtSF = log(dataTest$TotalBsmtSF)
+dataTrainAll$X1stFlrSF = log(dataTrain$X1stFlrSF)
+dataTestAll$X1stFlrSF = log(dataTest$X1stFlrSF)
+dataTrainAll$GrLivArea = log(dataTrain$GrLivArea)
+dataTestAll$GrLivArea = log(dataTest$GrLivArea)
+
+# using PCA methods 
+pca_model <- prcomp(highcorTrain, scale. = TRUE)
+# Transform train_data using the PCA model
+train_data_pca <- predict(pca_model, highcorTrain)
+# Transform test_data using the same PCA model
+test_data_pca <- predict(pca_model, highcorTest)
+dataTrainAll$SalePrice = dataTrain$SalePrice
 
 # testing the accuracy (need to use the train data to get the accuracy) ###
-startModel = randomForest(SalePrice ~ ., data = dataTrainAll, ntree = 500)
+dataframe_datatrain <- as.data.frame(train_data_pca)
+dataframe_datatest <- as.data.frame(test_data_pca)
+startModel <- lm(SalePrice ~ ., data = dataframe_datatrain)
 
 # Predict sale prices for the test dataset
 #predictions = predict(startModel, newdata = dataTestAll)
-predictions1 = predict(startModel, newdata = dataTestAll)
+predictions1 = predict(startModel, newdata = dataframe_datatest)
 predictions = exp(predictions1)
 
 IDnum = 1461:2919
 MySubmission = data.frame(Id = IDnum, SalePrice = predictions)
-write.csv(MySubmission, "predictionsRandomForest.csv", row.names=FALSE)
+write.csv(MySubmission, "predictionslinearRegression.csv", row.names=FALSE)
 
-# results of the model #########################################################
+chart.Correlation(highcorTrain, histogram=TRUE, pch=19)
 
-# split train data into own train and test to test model 
+# correlation matrix 
+#correlation = cor(dataTrainAll)
+#print(correlation)
+
 # split data into train and test (to test model)
-set.seed(88)
-split = sample.split(dataTrainAll$SalePrice, SplitRatio = 0.75)
-resultsdataTrain = subset(dataTrainAll, split == TRUE)
-resultsdataTest = subset(dataTrainAll, split == FALSE)
-actaulSalePrice = resultsdataTest$SalePrice
-#actaulSalePrice = exp(actaulSalePrice)
-resultsdataTest$SalePrice = NULL
+#set.seed(88)
+#split = sample.split(dataTrainAll$SalePrice, SplitRatio = 0.75)
+#dataTrain = subset(dataTrainAll, split == TRUE)
+#dataTrain = subset(dataTrainAll, split == FALSE)
 
-# rerun model using new test and train data
-startModelTest = randomForest(SalePrice ~ ., data = resultsdataTrain, ntree = 500)
-#startModel <- lm(resultsdataTrain$SalePrice ~ ., data = resultsdataTrain)
-predictionTest = predict(startModelTest, newdata = resultsdataTest)
-predictionTest = exp(predictionTest)
-actaulSalePrice = exp(actaulSalePrice)
-
-# mae results 
-mae = mean(abs(actaulSalePrice - predictionTest))
-# mse results
-# Assuming y_true and y_pred are your actual and predicted values
-mse = mean((actaulSalePrice - predictionTest)^2)
+#mae = mean(abs(predictions - dataTrain$SalePrice))
 # Calculate the Root Mean Squared Error (RMSE)
-rmse = sqrt(mean((actaulSalePrice - predictionTest)^2))
-# mape results
-mape = mean(abs((actaulSalePrice - predictionTest) / actaulSalePrice)) * 100
+#rmse = sqrt(mean((predictions - dataTrain$SalePrice)^2))
+# Print the MAE and RMSE
+#cat("Mean Absolute Error (MAE): ", mae, "\n")
+#cat("Root Mean Squared Error (RMSE): ", rmse, "\n")
 # Define a threshold for acceptable error
-threshold = 10000
+#threshold = 10000
 # Calculate accuracy as the percentage of predictions within the threshold
-accuracy = mean(abs(actaulSalePrice - predictionTest) < threshold)
-
-# confusion matrix 
-# Convert to factors
-predictionTest <- as.factor(predictionTest)
-actaulSalePrice <- as.factor(actaulSalePrice)
-
-# Check the levels
-levels(predictionTest)
-levels(actaulSalePrice)
-
-# Create confusion matrix
-levels(predictionTest) = levels(actaulSalePrice)
-conf_matrix = confusionMatrix(predictionTest, actaulSalePrice)
-
-# Print results
-cat("Mean Absolute Error (MAE): ", mae, "\n")
-cat("Mean Squared Error (MSE): ", mse, "\n")
-cat("Root Mean Squared Error (RMSE): ", rmse, "\n")
-cat("Mean Absolute Percentage Error (MAPE): ", mape, "\n")
-cat("Accuracy within $", threshold, ": ", accuracy * 100, "%\n")
+#accuracy = mean(abs(predictionst - dataTrain$SalePrice) < threshold)
+# Print accuracy
+#cat("Accuracy within $", threshold, ": ", accuracy * 100, "%\n")

@@ -97,6 +97,43 @@ IDnum = 1461:2919
 MySubmission = data.frame(Id = IDnum, SalePrice = predictions)
 write.csv(MySubmission, "predictionsGradientBoost.csv", row.names=FALSE)
 
+set.seed(88)
+split = sample.split(dataTrainAll$SalePrice, SplitRatio = 0.75)
+dataTrain1 = subset(dataTrainAll, split == TRUE)
+dataTest1 = subset(dataTrainAll, split == FALSE)
+dataTest2 = dataTest
+testSalePrice = dataTest1$SalePrice
+dataTest$SalePrice = NULL
+
+
+gbm_model <- gbm(dataTrain1$SalePrice ~ ., data = dataTrain1,
+                 n.trees = 100, interaction.depth = 3)
+predictions <- predict(gbm_model, newdata = dataTestAll, n.trees = 100)
+
+
+
+# mae results 
+mae = mean(abs(actaulSalePrice - predictionTest))
+# mse results
+# Assuming y_true and y_pred are your actual and predicted values
+mse = mean((actaulSalePrice - predictionTest)^2)
+# Calculate the Root Mean Squared Error (RMSE)
+rmse = sqrt(mean((actaulSalePrice - predictionTest)^2))
+# mape results
+mape = mean(abs((actaulSalePrice - predictionTest) / actaulSalePrice)) * 100
+# Define a threshold for acceptable error
+threshold = 10000
+# Calculate accuracy as the percentage of predictions within the threshold
+accuracy = mean(abs(actaulSalePrice - predictionTest) < threshold)
+
+# Print results
+cat("Mean Absolute Error (MAE): ", mae, "\n")
+cat("Mean Squared Error (MSE): ", mse, "\n")
+cat("Root Mean Squared Error (RMSE): ", rmse, "\n")
+cat("Mean Absolute Percentage Error (MAPE): ", mape, "\n")
+cat("Accuracy within $", threshold, ": ", accuracy * 100, "%\n")
+
+
 # Testing the predictions
 #print(predictions)
 #test_predictions = predictions

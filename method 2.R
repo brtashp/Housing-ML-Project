@@ -131,12 +131,12 @@ startDataTrain$LotFrontage = ifelse(is.na(startDataTrain$LotFrontage),
                                     startDataTrain$LotFrontage)
 
 startDataTrain$LotShape = ifelse(is.na(startDataTrain$LotShape), 
-                                 median(startDataTrain$LotShape,
+                                 mean(startDataTrain$LotShape,
                                         na.rm = TRUE),
                                  startDataTrain$LotShape)
 
 startDataTrain$GarageArea = ifelse(is.na(startDataTrain$GarageArea), 
-                                   median(startDataTrain$GarageArea,
+                                   mean(startDataTrain$GarageArea,
                                           na.rm = TRUE),
                                    startDataTrain$GarageArea)
 
